@@ -1,0 +1,343 @@
+<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>داخل الخلية النباتية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--panel:rgba(14,26,18,.86);--ink:#EAF5EC;--muted:#A9C2AF;--line:rgba(255,255,255,.14);--accent:#7BD88A;--ok:#4ADE80;--ok-bg:rgba(34,120,60,.35);--bad:#FDBA74;--bad-bg:rgba(160,70,20,.35);
+ --display:"Baloo Bhaijaan 2","IBM Plex Sans Arabic",system-ui,sans-serif;--body:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%;margin:0;direction:rtl}
+body{background:#050C07;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;overflow:hidden}
+#cv{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}#cv:active{cursor:grabbing}
+.top{position:fixed;top:0;inset-inline:0;z-index:5;padding:calc(10px + env(safe-area-inset-top,0px)) 14px 0;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;pointer-events:none}
+.top>*{pointer-events:auto}
+h1{margin:0;font:800 clamp(1.05rem,3vw,1.45rem)/1.25 var(--display);background:var(--panel);padding:5px 16px 3px;border-radius:99px;border:1px solid var(--line);backdrop-filter:blur(8px)}
+h1 small{font:600 .72rem var(--body);color:#FFD27A;margin-inline-start:6px}
+.pill{border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 .82rem var(--body);padding:6px 12px;border-radius:99px;cursor:pointer;text-decoration:none;backdrop-filter:blur(8px)}
+.pill b{color:var(--accent)}
+.card{position:fixed;z-index:6;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 10px 40px rgba(0,0,0,.45)}
+@media (min-width:760px){.card{inset-inline-end:16px;top:72px;bottom:16px;width:min(400px,36vw);border-radius:22px;overflow:auto}}
+@media (max-width:759px){.card{inset-inline:0;bottom:0;max-height:44vh;border-radius:22px 22px 0 0;overflow:auto;padding-bottom:env(safe-area-inset-bottom,0px)}}
+.cin{padding:16px 18px 18px;display:grid;gap:9px}
+.cin p{margin:0}.kick{color:var(--accent);font-weight:700;font-size:.85rem}
+.cin h2{margin:0;font:800 1.35rem/1.25 var(--display)}
+.hint{color:var(--muted);font-size:.9rem}
+.info{background:rgba(123,216,138,.12);border:1px solid rgba(123,216,138,.35);border-radius:14px;padding:9px 12px}.info b{display:block;color:var(--accent);font-size:1.05rem}
+.go{border:0;background:linear-gradient(135deg,#5CCB6E,#2F8A3E);color:#fff;font:800 1.05rem var(--body);padding:12px;border-radius:14px;cursor:pointer;box-shadow:0 6px 20px rgba(47,138,62,.45)}
+.parts{display:flex;flex-wrap:wrap;gap:6px}.parts button{border:1.5px solid var(--line);background:rgba(255,255,255,.04);color:var(--muted);font:600 .85rem var(--body);padding:4px 11px;border-radius:99px;cursor:pointer}
+.parts button.got{border-color:var(--ok);color:var(--ink);background:var(--ok-bg)}.parts button.on{outline:2px solid #FFD27A;outline-offset:1px}
+.cnt{font-size:.85rem;color:var(--muted)}
+.row{display:flex;gap:6px;flex-wrap:wrap}.tg{flex:1;min-width:150px;border:1.5px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);font:700 .88rem var(--body);padding:8px 10px;border-radius:12px;cursor:pointer}
+.q{display:grid;gap:6px;border-top:1px solid var(--line);padding-top:10px}.q>p:first-child{font-weight:700}
+.opt{text-align:start;border:1.5px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);font:600 .92rem var(--body);padding:8px 12px;border-radius:12px;cursor:pointer}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}.opt.wrong{border-color:var(--bad);background:var(--bad-bg);opacity:.85}
+.fb{font-size:.92rem;border-radius:10px;padding:0}.fb.ok{background:var(--ok-bg);padding:8px 10px}.fb.bad{background:var(--bad-bg);padding:8px 10px}
+.cr{font-size:.75rem;color:var(--muted);text-align:center;margin-top:4px}
+#labels{position:fixed;inset:0;pointer-events:none;z-index:4;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;background:rgba(8,16,10,.82);color:#F2FFF4;font:700 13px var(--body);padding:3px 11px;border-radius:99px;white-space:nowrap;border:1px solid rgba(255,255,255,.25);opacity:0}
+.lbl.pin{background:#FFD27A;color:#1B2A10;border-color:#fff;font-size:14px}
+.lbl.pin:after{content:"";position:absolute;left:50%;bottom:-7px;width:2px;height:7px;background:#FFD27A;transform:translateX(-50%)}
+#toast{position:fixed;z-index:8;top:64px;left:50%;transform:translateX(-50%);background:#FFD27A;color:#1B2A10;font-weight:700;font-size:.9rem;padding:8px 16px;border-radius:14px;max-width:min(92vw,520px);text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+@media (max-width:759px){#toast{top:auto;bottom:calc(44vh + 12px)}}
+#load{position:fixed;inset:0;z-index:9;display:grid;place-items:center;background:#050C07;color:var(--ink);font:700 1.1rem var(--body)}
+</style>
+<canvas id="cv" aria-label="نموذج ثلاثي الأبعاد واقعي لخلية نباتية داخل نسيج ورقة"></canvas>
+<div id="labels" aria-hidden="true"></div>
+<div class="top"><h1>🌿 داخل الخلية النباتية<small>نسخة تجريبية</small></h1><button class="pill" id="qbtn" type="button"></button><a class="pill" href="plant.html">النسخة الحالية ↗</a></div>
+<aside class="card"><div class="cin" id="cin" aria-live="polite"></div><p class="cr">إعداد وتصميم: أ. خالد رفيع الحمدي</p></aside>
+<div id="toast" role="status" hidden></div>
+<div id="load">⏳ جارٍ تجهيز الخلية…</div>
+<script type="module">
+try{window.THREE=await import('./three.module.min.js');window.ADD=await import('./three-addons.min.js');}
+catch(e){document.getElementById('load').textContent='تعذّر تحميل المحرّك: تأكّد من رفع الملفين three.module.min.js و three-addons.min.js مع هذه الصفحة.';throw e;}
+/* داخل الخلية النباتية — نسخة الجودة العالية (تجريبية) */
+const $=s=>document.querySelector(s),ar=n=>Number(n).toLocaleString('ar-SA');
+const T=window.THREE,A=window.ADD;
+const {EffectComposer,RenderPass,UnrealBloomPass,BokehPass,OutputPass,ShaderPass,RoomEnvironment,RoundedBoxGeometry,OrbitControls}=A;
+const isMob=()=>innerWidth<760;
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+/* ===== المشهد ===== */
+const cv=$('#cv');
+const R=new T.WebGLRenderer({canvas:cv,antialias:true,powerPreference:'high-performance'});
+R.outputColorSpace=T.SRGBColorSpace;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.0;
+R.localClippingEnabled=true;R.shadowMap.type=T.PCFSoftShadowMap;
+const scene=new T.Scene();
+const cam=new T.PerspectiveCamera(38,1,.05,120);
+const ctl=new OrbitControls(cam,cv);ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.enablePan=false;ctl.rotateSpeed=.7;ctl.zoomSpeed=.8;
+
+const pm=new T.PMREMGenerator(R);scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;
+scene.environmentIntensity=.55;
+
+/* خلفية: توهّج أخضر داكن كأننا داخل ورقة */
+const mkCanvas=(w,h,f)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);return c;};
+const bgTex=new T.CanvasTexture(mkCanvas(512,512,(g,w,h)=>{const r=g.createRadialGradient(w*.55,h*.4,10,w*.5,h*.5,w*.75);r.addColorStop(0,'#2E5A35');r.addColorStop(.45,'#14301C');r.addColorStop(1,'#050C07');g.fillStyle=r;g.fillRect(0,0,w,h);}));
+bgTex.colorSpace=T.SRGBColorSpace;scene.background=bgTex;
+scene.fog=new T.FogExp2('#0A1A10',.028);
+
+/* أضواء: ضوء الشمس الدافئ من أعلى، وضوء خلفي بارد */
+scene.add(new T.HemisphereLight('#E9FFE6','#1D3A24',.55));
+const sun=new T.DirectionalLight('#FFF1D2',2.4);sun.position.set(5,9,7);sun.shadow.mapSize.set(1024,1024);
+Object.assign(sun.shadow.camera,{left:-5,right:5,top:5,bottom:-5,near:1,far:30});sun.shadow.bias=-.0006;sun.shadow.radius=4;scene.add(sun);
+const rim=new T.DirectionalLight('#9CC7FF',.9);rim.position.set(-7,2,-6);scene.add(rim);
+const fillL=new T.PointLight('#CFFFB8',1.2,9,2);fillL.position.set(.6,.4,2.4);scene.add(fillL);
+
+/* ===== أنسجة إجرائية ===== */
+const tex=(c,srgb=true,rep=[1,1])=>{const t=new T.CanvasTexture(c);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(...rep);t.anisotropy=4;return t;};
+const H01=(i,k=1)=>{const v=Math.sin(i*12.9898+k*78.233)*43758.5453;return v-Math.floor(v);};
+/* خريطة اتجاهات (Normal) من صورة ارتفاعات */
+const toNormal=(src,str=2)=>{const w=src.width,h=src.height,d=src.getContext('2d').getImageData(0,0,w,h).data;
+  return mkCanvas(w,h,(g)=>{const o=g.createImageData(w,h),H=(x,y)=>d[(((y+h)%h)*w+((x+w)%w))*4]/255;
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){const dx=(H(x+1,y)-H(x-1,y))*str,dy=(H(x,y+1)-H(x,y-1))*str,l=Math.hypot(dx,dy,1),i=(y*w+x)*4;
+      o.data[i]=(-dx/l*.5+.5)*255;o.data[i+1]=(dy/l*.5+.5)*255;o.data[i+2]=(1/l*.5+.5)*255;o.data[i+3]=255;}g.putImageData(o,0,0);});};
+/* ألياف السليلوز في الجدار الخلوي */
+const fiberH=mkCanvas(256,256,(g,w,h)=>{g.fillStyle='#808080';g.fillRect(0,0,w,h);g.lineCap='round';
+  for(let i=0;i<260;i++){const a=(H01(i)-.5)*.9+(i%2?0:Math.PI/2),x=H01(i,2)*w,y=H01(i,3)*h,L=40+H01(i,4)*120;
+    g.strokeStyle=`rgba(${H01(i,5)>.5?255:0},${H01(i,5)>.5?255:0},${H01(i,5)>.5?255:0},${.08+H01(i,6)*.18})`;g.lineWidth=1+H01(i,7)*3;
+    for(const ox of [-w,0,w])for(const oy of [-h,0,h]){g.beginPath();g.moveTo(x+ox,y+oy);g.lineTo(x+ox+Math.cos(a)*L,y+oy+Math.sin(a)*L);g.stroke();}}});
+const fiberN=tex(toNormal(fiberH,3),false,[2,3]);
+/* البلاستيدة الخضراء: أكوام الجرانا والأغشية */
+const chlC=tex(mkCanvas(256,128,(g,w,h)=>{const r=g.createLinearGradient(0,0,0,h);r.addColorStop(0,'#3FAE4F');r.addColorStop(.5,'#2C8A3B');r.addColorStop(1,'#3FAE4F');g.fillStyle=r;g.fillRect(0,0,w,h);
+  g.strokeStyle='rgba(190,255,170,.35)';g.lineWidth=1.2;for(let i=0;i<9;i++){g.beginPath();for(let x=0;x<=w;x+=8)g.lineTo(x,h*.12+i*h*.095+Math.sin(x*.05+i)*2.5);g.stroke();}
+  for(let i=0;i<14;i++){const x=(i%7)*w/7+18+(i>6?16:0),y=h*(i>6?.66:.34);for(let k=0;k<5;k++){g.fillStyle=k%2?'#1B6A2A':'#145A22';g.beginPath();g.ellipse(x,y-10+k*5,11,2.6,0,0,7);g.fill();}}}));
+const chlN=tex(toNormal(mkCanvas(256,128,(g,w,h)=>{g.fillStyle='#808080';g.fillRect(0,0,w,h);for(let i=0;i<14;i++){const x=(i%7)*w/7+18+(i>6?16:0),y=h*(i>6?.66:.34);g.fillStyle='#B0B0B0';g.beginPath();g.ellipse(x,y,12,13,0,0,7);g.fill();}}),2),false);
+/* الميتوكندريا: الأعراف الداخلية */
+const mitC=tex(mkCanvas(128,64,(g,w,h)=>{g.fillStyle='#E67A2E';g.fillRect(0,0,w,h);g.strokeStyle='#FFC08A';g.lineWidth=3;for(let i=0;i<9;i++){g.beginPath();const x=8+i*14;g.moveTo(x,0);g.bezierCurveTo(x+9,h*.3,x-9,h*.7,x,h);g.stroke();}}));
+/* النواة: حبيبات الكروماتين */
+const nucH=mkCanvas(256,128,(g,w,h)=>{g.fillStyle='#808080';g.fillRect(0,0,w,h);for(let i=0;i<700;i++){g.fillStyle=`rgba(${H01(i)>.5?255:0},${H01(i)>.5?255:0},${H01(i)>.5?255:0},.25)`;g.beginPath();g.arc(H01(i,2)*w,H01(i,3)*h,1+H01(i,4)*3,0,7);g.fill();}});
+const nucN=tex(toNormal(nucH,2.5),false);
+
+/* ===== الأبعاد ===== */
+const W=3.0,Hc=4.4,D=2.6,RAD=.6,WT=.13,MT=.05;   /* الخلية، سماكة الجدار، سماكة الغشاء */
+const clip=new T.Plane(new T.Vector3(0,0,-1),60);   /* يقطع ما أمام z=cz */
+const CL=[clip];
+
+/* المواد: نسخة عالية (شفافية فيزيائية) ونسخة خفيفة */
+const MATS=[];
+const mat=(hi,lo)=>{const m={hi:new T.MeshPhysicalMaterial(hi),lo:new T.MeshStandardMaterial(lo)};MATS.push(m);return m;};
+const wallM=mat({color:'#93CF70',roughness:.42,metalness:0,transmission:.62,thickness:.35,ior:1.45,clearcoat:.35,clearcoatRoughness:.4,normalMap:fiberN,normalScale:new T.Vector2(.5,.5),clippingPlanes:CL,attenuationColor:'#BFE8A0',attenuationDistance:1.2},
+  {color:'#93CF70',roughness:.55,transparent:true,opacity:.42,normalMap:fiberN,clippingPlanes:CL,depthWrite:false});
+const wallIn=mat({color:'#7DBE5C',roughness:.5,transmission:.4,thickness:.2,side:T.BackSide,clippingPlanes:CL},{color:'#7DBE5C',roughness:.6,side:T.BackSide,transparent:true,opacity:.35,clippingPlanes:CL,depthWrite:false});
+const memM=mat({color:'#F6E9A6',roughness:.18,transmission:.85,thickness:.05,iridescence:.9,iridescenceIOR:1.35,iridescenceThicknessRange:[200,600],clippingPlanes:CL},
+  {color:'#F6E9A6',roughness:.3,transparent:true,opacity:.28,clippingPlanes:CL,depthWrite:false});
+const cytoM=mat({color:'#A9C987',roughness:.55,side:T.BackSide,clippingPlanes:CL,emissive:'#1C3216',emissiveIntensity:.2,sheen:.8,sheenColor:'#E8FFC0',clearcoat:.6,clearcoatRoughness:.35,normalMap:nucN,normalScale:new T.Vector2(.25,.25)},{color:'#A9C987',roughness:.7,side:T.BackSide,clippingPlanes:CL,emissive:'#1C3216',emissiveIntensity:.2});
+const vacM=mat({color:'#E2F2FF',roughness:.05,transmission:1,thickness:.5,ior:1.25,iridescence:.45,iridescenceThicknessRange:[150,400],side:T.FrontSide,clippingPlanes:CL,attenuationColor:'#BFDFFF',attenuationDistance:3,specularIntensity:1},
+  {color:'#BFDFFF',roughness:.1,transparent:true,opacity:.35,side:T.FrontSide,clippingPlanes:CL,depthWrite:false});
+const vacCapM=mat({color:'#E2F2FF',roughness:.04,transmission:1,thickness:.5,ior:1.25,iridescence:.3,attenuationColor:'#BFDFFF',attenuationDistance:3},{color:'#BFDFFF',roughness:.1,transparent:true,opacity:.3,depthWrite:false});
+const nucM=mat({color:'#9C7BCB',roughness:.4,clearcoat:.6,clearcoatRoughness:.3,sheen:.7,sheenColor:'#E5D2FF',normalMap:nucN,normalScale:new T.Vector2(.7,.7),transmission:.3,thickness:.9},{color:'#9C7BCB',roughness:.5,normalMap:nucN});
+const nclM=mat({color:'#4E2F82',roughness:.5},{color:'#4E2F82',roughness:.6});
+const chlM=mat({color:'#ffffff',map:chlC,normalMap:chlN,normalScale:new T.Vector2(.6,.6),roughness:.38,clearcoat:.5,clearcoatRoughness:.25,sheen:1,sheenColor:'#C6FFA6',emissive:'#1A7A2C',emissiveIntensity:.18,clippingPlanes:CL},
+  {color:'#ffffff',map:chlC,roughness:.45,emissive:'#1A7A2C',emissiveIntensity:.18,clippingPlanes:CL});
+const mitM=mat({color:'#ffffff',map:mitC,roughness:.45,clearcoat:.4,sheen:.6,sheenColor:'#FFD6B0',emissive:'#7A3510',emissiveIntensity:.12,clippingPlanes:CL},{color:'#ffffff',map:mitC,roughness:.55,emissive:'#7A3510',emissiveIntensity:.12,clippingPlanes:CL});
+const grM=mat({color:'#F0DC86',roughness:.5,emissive:'#5A4A10',emissiveIntensity:.3,clippingPlanes:CL},{color:'#F0DC86',roughness:.6,emissive:'#5A4A10',emissiveIntensity:.3,clippingPlanes:CL});
+/* حواف المقطع: الجدار والغشاء */
+const capWall=new T.MeshStandardMaterial({color:'#6FB34C',roughness:.6,normalMap:fiberN,side:T.DoubleSide,transparent:true,opacity:0});
+const capMem=new T.MeshStandardMaterial({color:'#FFF1A8',roughness:.3,emissive:'#8A7A20',emissiveIntensity:.5,side:T.DoubleSide,transparent:true,opacity:0});
+/* الخلايا المجاورة */
+const nbM=mat({color:'#8CC96A',roughness:.45,transmission:.55,thickness:.35,ior:1.45,normalMap:fiberN,normalScale:new T.Vector2(.5,.5),attenuationColor:'#BFE8A0',attenuationDistance:1.5},{color:'#8CC96A',roughness:.55,transparent:true,opacity:.4,normalMap:fiberN,depthWrite:false});
+const nbFront=new T.MeshStandardMaterial({color:'#8CC96A',roughness:.5,transparent:true,opacity:.5,normalMap:fiberN,depthWrite:false});
+const nbChl=mat({color:'#ffffff',map:chlC,roughness:.4,sheen:1,sheenColor:'#C6FFA6',emissive:'#1A7A2C',emissiveIntensity:.15},{color:'#ffffff',map:chlC,roughness:.5,emissive:'#1A7A2C',emissiveIntensity:.15});
+const nbChlF=new T.MeshStandardMaterial({color:'#ffffff',map:chlC,roughness:.5,transparent:true,opacity:1,emissive:'#1A7A2C',emissiveIntensity:.15});
+
+const MESHES=[];const add=(geo,m,tag,o={})=>{const me=new T.Mesh(geo,m.hi||m);me.userData.m=m.hi?m:null;me.userData.tag=tag;Object.assign(me,o);scene.add(me);MESHES.push(me);return me;};
+const addI=(geo,m,n,tag)=>{const me=new T.InstancedMesh(geo,m.hi||m,n);me.userData.m=m.hi?m:null;me.userData.tag=tag;scene.add(me);MESHES.push(me);return me;};
+
+/* ===== الخلية الرئيسة ===== */
+const cell=new T.Group();
+const wallO=add(new RoundedBoxGeometry(W,Hc,D,6,RAD),wallM,'wall');
+const wallI=add(new RoundedBoxGeometry(W-WT*2,Hc-WT*2,D-WT*2,6,RAD-WT),wallIn,'wall');
+const mem=add(new RoundedBoxGeometry(W-WT*2-.02,Hc-WT*2-.02,D-WT*2-.02,6,RAD-WT-.01),memM,'mem');
+const cyto=add(new RoundedBoxGeometry(W-WT*2-MT*2,Hc-WT*2-MT*2,D-WT*2-MT*2,6,RAD-WT-MT),cytoM,'cyto');
+/* الفجوة: كتلة كبيرة متموّجة قليلًا */
+const VAC={c:new T.Vector3(.08,-.36,-.08),s:new T.Vector3(1.95,2.55,1.7)};
+const vg=new RoundedBoxGeometry(VAC.s.x,VAC.s.y,VAC.s.z,10,.62);{const p=vg.attributes.position,v=new T.Vector3();for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);const k=1+.018*Math.sin(v.x*3.1+v.y*2.3)+.015*Math.sin(v.y*4.2-v.z*3.3);v.multiplyScalar(k);p.setXYZ(i,v.x,v.y,v.z);}vg.computeVertexNormals();}
+const vac=add(vg,vacM,'vac');vac.position.copy(VAC.c);
+/* النواة ونويّتها، مدفوعة إلى ركن الخلية بالفجوة */
+const NUC={c:new T.Vector3(-.72,1.38,-.5),r:.44};
+const nuc=add(new T.SphereGeometry(NUC.r,64,48),nucM,'nuc');nuc.position.copy(NUC.c);nuc.scale.set(1.08,.92,1);nuc.castShadow=true;
+const ncl=add(new T.SphereGeometry(.15,32,24),nclM,'nuc');ncl.position.copy(NUC.c).add(new T.Vector3(.08,.03,.12));
+
+/* مسار حول محيط الخلية (حركة السيتوبلازم) */
+const rrect=(u,a,b,r)=>{const sa=2*(a-r),sb=2*(b-r),q=Math.PI*r/2,L=2*sa+2*sb+4*q;let s=((u%1)+1)%1*L;
+  const segs=[[sb,(t)=>[a,-b+r+t],[1,0]],[q,(t)=>{const th=t/r;return [a-r+r*Math.cos(th),b-r+r*Math.sin(th)];},null],[sa,(t)=>[a-r-t,b],[0,1]],[q,(t)=>{const th=Math.PI/2+t/r;return [-a+r+r*Math.cos(th),b-r+r*Math.sin(th)];},null],
+    [sb,(t)=>[-a,b-r-t],[-1,0]],[q,(t)=>{const th=Math.PI+t/r;return [-a+r+r*Math.cos(th),-b+r+r*Math.sin(th)];},null],[sa,(t)=>[-a+r+t,-b],[0,-1]],[q,(t)=>{const th=1.5*Math.PI+t/r;return [a-r+r*Math.cos(th),-b+r+r*Math.sin(th)];},null]];
+  for(const [len,f,n] of segs){if(s<=len){const p=f(s);let nn=n;if(!nn){const c=[p[0]-Math.sign(p[0])*(a-r)*0,0];}if(!n){const cx=p[0]>0?a-r:-a+r,cy=p[1]>0?b-r:-b+r,l=Math.hypot(p[0]-cx,p[1]-cy)||1;nn=[(p[0]-cx)/l,(p[1]-cy)/l];}return {p,n:nn};}s-=len;}return {p:[a,-b+r],n:[1,0]};};
+const chlGeo=new T.SphereGeometry(1,40,24);
+const CH=[];   /* كل بلاستيدة: نوعها ومعاملاتها */
+for(let i=0;i<20;i++)CH.push({k:'loop',u:i/20+H01(i,9)*.03,z:[-.78,-.38,.02,.42,.8][i%5],sp:.012+H01(i,4)*.006});
+for(let i=0;i<12;i++)CH.push({k:'back',a:H01(i,11)*6.28,rx:.15+H01(i,12)*.35,ry:.2+H01(i,13)*.5,cx:((i%3)-1)*.72,cy:(Math.floor(i/3)-1.5)*.95,sp:.05+H01(i,16)*.05,z:-D/2+WT+MT+.2});
+for(let i=0;i<9;i++)CH.push({k:'front',a:H01(i,21)*6.28,rx:.25+H01(i,22)*.6,ry:.3+H01(i,23)*1.2,cx:(H01(i,24)-.5)*.9,cy:(H01(i,25)-.5)*1.6,sp:.05+H01(i,26)*.05,z:D/2-WT-MT-.2});
+const chl=addI(chlGeo,chlM,CH.length,'chl');chl.castShadow=true;
+const MI=[];for(let i=0;i<9;i++)MI.push({u:H01(i,31),z:[-.6,-.2,.2,.6,-.4,.4,0,-.7,.7][i],sp:.009+H01(i,32)*.006,tw:H01(i,33)*6});
+const mitGeo=new T.CapsuleGeometry(.075,.2,8,16);mitGeo.rotateZ(Math.PI/2);
+const mit=addI(mitGeo,mitM,MI.length,'mito');mit.castShadow=true;
+/* حبيبات السيتوبلازم */
+const GR=[];{let i=0,n=0;const ia=W/2-WT-MT-.06,ib=Hc/2-WT-MT-.06,ic=D/2-WT-MT-.06;while(GR.length<260&&n<9000){n++;const p=new T.Vector3((H01(n,41)*2-1)*ia,(H01(n,42)*2-1)*ib,(H01(n,43)*2-1)*ic);
+  const q=p.clone().sub(VAC.c);if(Math.abs(q.x)<VAC.s.x/2+.06&&Math.abs(q.y)<VAC.s.y/2+.06&&Math.abs(q.z)<VAC.s.z/2+.06)continue;if(p.distanceTo(NUC.c)<NUC.r+.05)continue;GR.push({p,s:.018+H01(n,44)*.022,ph:H01(n,45)*6});}}
+const gr=addI(new T.IcosahedronGeometry(1,2),grM,GR.length,'cyto');
+
+/* ===== الخلايا المجاورة (النسيج) ===== */
+const NB=[];[[-1,0],[1,0],[-2,0],[2,0]].forEach(([i])=>NB.push({p:[i*3.35,0,0],f:false}));
+[[-1.5,-1],[-.5,-1],[.5,-1],[1.5,-1],[-2.5,-1],[2.5,-1]].forEach(([i,j])=>NB.push({p:[i*3.35,.25,j*2.95],f:false}));
+[[-1.5,1],[-.5,1],[.5,1],[1.5,1]].forEach(([i,j])=>NB.push({p:[i*3.35,-.2,j*2.95],f:true}));
+const nbGeo=new RoundedBoxGeometry(W,Hc,D,4,RAD);
+const nbBack=NB.filter(n=>!n.f),nbFr=NB.filter(n=>n.f);
+const nbW=addI(nbGeo,nbM,nbBack.length,'nb');const nbWF=new T.InstancedMesh(nbGeo,nbFront,nbFr.length);nbWF.userData.tag='nb';scene.add(nbWF);
+const M4=new T.Matrix4(),Qt=new T.Quaternion(),V=new T.Vector3(),S3=new T.Vector3();
+nbBack.forEach((n,i)=>{M4.makeTranslation(...n.p);nbW.setMatrixAt(i,M4);});nbFr.forEach((n,i)=>{M4.makeTranslation(...n.p);nbWF.setMatrixAt(i,M4);});
+const NBC=[];const nbChlPos=(n,k)=>{const r=rrect(H01(k,51),W/2-.42,Hc/2-.42,.35);const z=(H01(k,52)*2-1)*(D/2-.4);return [n.p[0]+r.p[0],n.p[1]+r.p[1],n.p[2]+z,r.n];};
+const placeNb=(list,mesh)=>{let c=0;list.forEach((n,ni)=>{for(let k=0;k<24;k++){const [x,y,z,nn]=nbChlPos(n,ni*31+k);basis(nn,[0,0,1]);Qt.setFromRotationMatrix(M4);M4.compose(V.set(x,y,z),Qt,S3.set(.24,.1,.15));mesh.setMatrixAt(c++,M4);}});mesh.instanceMatrix.needsUpdate=true;};
+const BX=new T.Vector3(),BY=new T.Vector3(),BZ=new T.Vector3();
+function basis(n,t){BY.set(n[0],n[1],0).normalize();BZ.set(0,0,1);BX.crossVectors(BY,BZ).normalize();if(t&&t[2]===1&&n.length===2){}M4.makeBasis(BX,BY,BZ);}
+const nbC=addI(chlGeo,nbChl,nbBack.length*24,'nb');placeNb(nbBack,nbC);
+const nbCF=new T.InstancedMesh(chlGeo,nbChlF,nbFr.length*24);scene.add(nbCF);placeNb(nbFr,nbCF);
+/* غبار عائم يعطي عمقًا */
+const dust=new T.Points(new T.BufferGeometry().setAttribute('position',new T.Float32BufferAttribute(Array.from({length:900},(_,i)=>(H01(i,61+i%3)*2-1)*[14,9,10][i%3]),3)),
+  new T.PointsMaterial({color:'#D8FFC8',size:.035,transparent:true,opacity:.5,depthWrite:false}));scene.add(dust);
+
+/* حلقات المقطع */
+const rrShape=(a,b,r)=>{const s=new T.Shape();s.moveTo(-a+r,-b);s.lineTo(a-r,-b);s.absarc(a-r,-b+r,r,-Math.PI/2,0);s.lineTo(a,b-r);s.absarc(a-r,b-r,r,0,Math.PI/2);s.lineTo(-a+r,b);s.absarc(-a+r,b-r,r,Math.PI/2,Math.PI);s.lineTo(-a,-b+r);s.absarc(-a+r,-b+r,r,Math.PI,1.5*Math.PI);return s;};
+const ring=(a,b,r,t)=>{const s=rrShape(a,b,r),h=rrShape(a-t,b-t,Math.max(.02,r-t));s.holes.push(new T.Path(h.getPoints(24).reverse()));return new T.ShapeGeometry(s,24);};
+const cW=add(ring(W/2,Hc/2,RAD,WT),capWall,'wall');const cM=add(ring(W/2-WT-.01,Hc/2-WT-.01,RAD-WT,MT+.02),capMem,'mem');
+const cMhit=add(ring(W/2-WT+.03,Hc/2-WT+.03,RAD-WT,MT+.12),new T.MeshBasicMaterial({visible:false,side:T.DoubleSide}),'mem');
+const cV=add(new T.ShapeGeometry(rrShape(VAC.s.x/2*.985,VAC.s.y/2*.985,.6),24),vacCapM,'vac');cV.position.set(VAC.c.x,VAC.c.y,0);
+[cW,cM,cMhit,cV].forEach(m=>m.visible=false);
+
+/* ظلال */
+[wallO,cyto,vac].forEach(m=>m.receiveShadow=true);
+
+/* ===== تحديث الحركة ===== */
+const pushNuc=(p,pad)=>{V.copy(p).sub(NUC.c);const d=V.length(),m=NUC.r+pad;if(d<m){p.copy(NUC.c).addScaledVector(V.normalize(),m);}};
+const P3=new T.Vector3();
+function animCell(t,dt){
+  CH.forEach((c,i)=>{let n;
+    if(c.k==='loop'){c.u+=c.sp*dt;const r=rrect(c.u,W/2-WT-MT-.24,Hc/2-WT-MT-.24,.32);P3.set(r.p[0],r.p[1],c.z);n=r.n;}
+    else{c.a+=c.sp*dt;P3.set(c.cx+Math.cos(c.a)*c.rx,c.cy+Math.sin(c.a)*c.ry,c.z);n=null;}
+    pushNuc(P3,.2);
+    if(n){BY.set(n[0],n[1],0);BZ.set(0,0,1);BX.crossVectors(BY,BZ);}else{BY.set(0,0,c.k==='back'?1:-1);BX.set(Math.cos(c.a+1.57),Math.sin(c.a+1.57),0);BZ.crossVectors(BX,BY);}
+    M4.makeBasis(BX.normalize(),BY.normalize(),BZ.normalize());Qt.setFromRotationMatrix(M4);
+    const wob=1+.04*Math.sin(t*2+i);M4.compose(P3,Qt,S3.set(.33*wob,.13,.21));chl.setMatrixAt(i,M4);c.pos=(c.pos||new T.Vector3()).copy(P3);});
+  chl.instanceMatrix.needsUpdate=true;
+  MI.forEach((m,i)=>{m.u+=m.sp*dt;const r=rrect(m.u,W/2-WT-MT-.5,Hc/2-WT-MT-.5,.3);P3.set(r.p[0],r.p[1],m.z);pushNuc(P3,.14);
+    Qt.setFromAxisAngle(V.set(0,0,1),Math.atan2(r.n[1],r.n[0])+Math.PI/2+.4*Math.sin(t*.7+m.tw));M4.compose(P3,Qt,S3.set(1,1,1));mit.setMatrixAt(i,M4);m.pos=(m.pos||new T.Vector3()).copy(P3);});
+  mit.instanceMatrix.needsUpdate=true;
+  GR.forEach((g,i)=>{P3.copy(g.p);P3.x+=Math.sin(t*.6+g.ph)*.03;P3.y+=Math.cos(t*.5+g.ph*1.3)*.03;M4.compose(P3,Qt.identity(),S3.setScalar(g.s));gr.setMatrixAt(i,M4);});gr.instanceMatrix.needsUpdate=true;
+  dust.rotation.y=t*.01;vac.rotation.y=Math.sin(t*.3)*.015;nuc.rotation.y=t*.05;}
+
+/* ===== المعالجة اللاحقة ===== */
+let composer=null,bokeh=null,bloom=null,vign=null;
+function buildComposer(){const rt=new T.WebGLRenderTarget(1,1,{type:T.HalfFloatType,samples:4});composer=new EffectComposer(R,rt);
+  composer.addPass(new RenderPass(scene,cam));
+  bokeh=new BokehPass(scene,cam,{focus:8,aperture:.0016,maxblur:.008});bokeh.materialDepth.clippingPlanes=CL;composer.addPass(bokeh);
+  bloom=new UnrealBloomPass(new T.Vector2(256,256),.22,.45,.92);composer.addPass(bloom);
+  vign=new ShaderPass({uniforms:{tDiffuse:{value:null},amt:{value:.55}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader:'uniform sampler2D tDiffuse;uniform float amt;varying vec2 vUv;void main(){vec4 c=texture2D(tDiffuse,vUv);vec2 d=vUv-.5;c.rgb*=1.-amt*dot(d,d)*1.6;gl_FragColor=c;}'});composer.addPass(vign);
+  composer.addPass(new OutputPass());}
+
+/* ===== الجودة ===== */
+let HQ=store.get('cellhq-q')?store.get('cellhq-q')==='hi':true;
+function applyQ(){MESHES.forEach(m=>{if(m.userData.m)m.material=HQ?m.userData.m.hi:m.userData.m.lo;});
+  R.shadowMap.enabled=HQ;sun.castShadow=HQ;scene.traverse(o=>{if(o.material)o.material.needsUpdate=true;});
+  if(HQ&&!composer)buildComposer();resize();
+  $('#qbtn').innerHTML=`الجودة: <b>${HQ?'عالية':'خفيفة'}</b>`;$('#qbtn').setAttribute('aria-pressed',HQ);}
+
+/* ===== الحالة ===== */
+const PARTS={wall:{n:'الجدار الخلوي',d:'طبقة صلبة تحيط بالغشاء البلازمي، تدعم الخلية النباتية وتعطيها شكلها وتحميها.'},
+ mem:{n:'الغشاء البلازمي',d:'يحيط بالخلية، ويسمح بدخول المواد وخروجها.'},
+ cyto:{n:'السيتوبلازم',d:'مادة تشبه الهلام فيها كمية كبيرة من الماء، وفيها أجزاء الخلية.'},
+ nuc:{n:'النواة',d:'مركز التحكّم في الخلية، وفيها الكروموسومات.'},
+ vac:{n:'الفجوة',d:'تخزن الماء والغذاء وبعض الفضلات، وهي كبيرة في الخلية النباتية.'},
+ chl:{n:'البلاستيدات الخضراء',d:'فيها الكلوروفيل الأخضر الذي يمتص طاقة الضوء لصنع الغذاء.'},
+ mito:{n:'الميتوكندريا',d:'مصدر طاقة الخلية: تحرر الطاقة من الغذاء.'}};
+const anchor=k=>{const cz=Math.min(clip.constant,.0);switch(k){
+  case 'wall':return V.set(W/2-WT/2,.9,cz);case 'mem':return V.set(-(W/2-WT-MT/2),-1.2,cz);case 'cyto':return V.set(.95,-1.75,cz-.3);
+  case 'nuc':return V.copy(NUC.c).add(P3.set(0,0,NUC.r));case 'vac':return V.copy(VAC.c).add(P3.set(.25,-.2,VAC.s.z/2*.9));
+  case 'chl':{const c=CH.find(c=>c.k==='back');return V.copy(c.pos||NUC.c);}case 'mito':return V.copy(MI[0].pos||NUC.c);}};
+const S={mode:'tissue',fly:null,cut:false,cz:60,czT:60,sel:null,got:new Set(),q:false,fade:1};
+const VIEWS={tissue:{pos:[9,5,17],tgt:[0,0,-.5],min:9,max:26},cell:{pos:[3.1,1.9,7.6],tgt:[0,-.05,-.35],min:3.4,max:11}};
+const fitK=()=>Math.min(2.1,Math.max(1,.8/cam.aspect));
+const vPos=v=>{const t=new T.Vector3(...VIEWS[v].tgt);return new T.Vector3(...VIEWS[v].pos).sub(t).multiplyScalar(fitK()).add(t);};
+function flyTo(v,dur=2.6){const s={p:cam.position.clone(),t:ctl.target.clone()};S.fly={s,e:{p:vPos(v),t:new T.Vector3(...VIEWS[v].tgt)},t0:TEST?tSim*1000:performance.now(),dur:dur*1000,v};
+  ctl.minDistance=0;ctl.maxDistance=100;}
+const ease=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+
+/* ===== الواجهة ===== */
+const card=$('#cin');
+function ui(){if(S.mode==='tissue'){card.innerHTML=`<p class="kick">المستوى ٣ · نسيج</p><h2>خلايا ورقة النبات</h2>
+  <p>الورقة مكوّنة من خلايا كثيرة متراصّة في طبقات. والخلايا المتشابهة التي تقوم بالوظيفة نفسها تشكّل <b>نسيجًا</b>.</p>
+  <p class="hint">دوّر النسيج بالسحب، ولاحظ الأجسام الخضراء داخل كل خلية.</p>
+  <button class="go" type="button" id="dive">🔍 ادخل إلى الخلية</button>`;$('#dive').onclick=dive;return;}
+  const k=S.sel;card.innerHTML=`<p class="kick">المستوى ٤ · خلية</p><h2>الخلية النباتية</h2>
+  <p>الخلية: أصغر جزء في النبات قادر على الحياة. اضغط على أجزائها لتعرفها.</p>
+  ${k?`<p class="info"><b>${PARTS[k].n}</b>${PARTS[k].d}</p>`:'<p class="hint">دوّر الخلية بالسحب، وقرّب بإصبعين أو بعجلة الفأرة. اكتشف الأجزاء السبعة.</p>'}
+  <div class="parts">${Object.keys(PARTS).map(p=>`<button type="button" data-p="${p}" class="${S.got.has(p)?'got':''}${p===k?' on':''}">${S.got.has(p)?'✓ ':''}${PARTS[p].n}</button>`).join('')}</div>
+  <p class="cnt">اكتشفت ${ar(S.got.size)} من ${ar(7)}</p>
+  <div class="row"><button class="tg" type="button" id="cut" aria-pressed="${S.cut}">${S.cut?'🔪 الخلية مقطوعة: أغلقها':'🔪 اقطع الخلية لترى داخلها'}</button><button class="tg" type="button" id="back">↩ عودة إلى النسيج</button></div>
+  ${S.got.size>=7||S.q?`<div class="q"><p>سؤال: لماذا كانت أوراق النبات خضراء؟</p>${['لأن جدار الخلية أخضر','لأن في خلاياها بلاستيدات خضراء فيها الكلوروفيل','لأن الفجوة مملوءة بماء أخضر'].map((o,i)=>`<button class="opt" type="button" data-o="${i}">${o}</button>`).join('')}<p class="fb" id="qfb" aria-live="polite"></p></div>`:''}`;
+  card.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>select(b.dataset.p));
+  $('#cut').onclick=()=>{S.cut=!S.cut;S.czT=S.cut?0:60;ui();};$('#back').onclick=()=>{S.mode='tissue';S.sel=null;S.cut=false;S.czT=60;flyTo('tissue');ui();};
+  card.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const i=+b.dataset.o,f=$('#qfb');
+    if(i===1){b.classList.add('right');card.querySelectorAll('[data-o]').forEach(x=>x.disabled=true);f.className='fb ok';f.innerHTML='صحيح! البلاستيدات الخضراء في خلايا الورقة فيها <b>الكلوروفيل</b>، وهو الذي يكسب النبات لونه الأخضر.';S.q=true;}
+    else{b.classList.add('wrong');b.disabled=true;f.className='fb bad';f.textContent=i===0?'اضغط على الجدار الخلوي: هل لونه هو سبب اخضرار الورقة؟ ابحث عن الأجسام الخضراء الصغيرة.':'الفجوة تخزن الماء، ولونها ليس أخضر. ما الأجسام الخضراء داخل الخلية؟';}});}
+function dive(){S.mode='cell';flyTo('cell',3.2);(S.pend={at:(TEST?tSim:performance.now()/1000)+2.3});ui();}
+function select(k){S.sel=k;S.got.add(k);ui();}
+
+/* لمس واختيار */
+const ray=new T.Raycaster(),NDC=new T.Vector2();let down=null;
+cv.addEventListener('pointerdown',e=>{down=[e.clientX,e.clientY];});
+cv.addEventListener('pointerup',e=>{if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>7)return;down=null;
+  const r=cv.getBoundingClientRect();NDC.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(NDC,cam);
+  const objs=MESHES.filter(m=>m.visible&&m.userData.tag);const hits=ray.intersectObjects(objs,false);
+  const ok=h=>!(clip.constant<50&&h.point.z>clip.constant+.01&&h.object.userData.tag!=='nb');
+  /* الفجوة شفافة: إن كان خلفها جسم ظاهر (بلاستيدة أو ميتوكندريا أو نواة) فهو المقصود */
+  const vi=hits.findIndex(ok);if(vi>=0&&hits[vi].object.userData.tag==='vac'){const b=hits.slice(vi+1).find(h=>ok(h)&&['chl','mito','nuc'].includes(h.object.userData.tag));if(b&&S.mode==='cell'){select(b.object.userData.tag);return;}}
+  for(const h of hits){const tag=h.object.userData.tag;if(clip.constant<50&&h.point.z>clip.constant+.01&&!['nb'].includes(tag))continue;
+    if(tag==='nb'){if(S.mode==='tissue'){toast('هذه خلية مجاورة، وكل خلايا النسيج متشابهة. اضغط «ادخل إلى الخلية».');}break;}
+    if(S.mode==='tissue'){toast('هذه خلية واحدة من النسيج. اضغط «ادخل إلى الخلية» لترى أجزاءها.');break;}
+    select(tag);break;}});
+let tT=0;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tT);tT=setTimeout(()=>t.hidden=true,3200);}
+
+/* ===== التسميات ===== */
+const LB=$('#labels');const mkL=(c='')=>{const d=document.createElement('div');d.className='lbl '+c;LB.appendChild(d);return d;};
+const lSel=mkL('pin'),lT1=mkL(),lT2=mkL();
+const place=(el,p,show,txt)=>{if(!show){el.style.opacity=0;return;}V.copy(p).project(cam);if(V.z>1){el.style.opacity=0;return;}
+  const r=cv.getBoundingClientRect();el.textContent=txt;el.style.opacity=1;const w=el.offsetWidth/2+8,x=Math.min(r.width-w,Math.max(w,(V.x*.5+.5)*r.width));el.style.transform=`translate(${x}px,${(-V.y*.5+.5)*r.height}px) translate(-50%,-130%)`;};
+
+/* ===== الحجم والتأطير ===== */
+function resize(){const w=innerWidth,h=innerHeight;R.setPixelRatio(Math.min(devicePixelRatio||1,HQ?1.75:1));R.setSize(w,h,false);cam.aspect=w/h;
+  const m=isMob(),cw=m?0:Math.min(400,w*.36),ch=m?Math.min(h*.44,380):0;cam.setViewOffset(w,h,-cw/2,ch*.48,w,h);cam.updateProjectionMatrix();
+  if(composer){composer.setPixelRatio(R.getPixelRatio());composer.setSize(w,h);}}
+addEventListener('resize',resize);
+
+/* ===== الحلقة ===== */
+const clock=new T.Clock();const TEST=/test/.test(location.search);let tSim=0;let fpsN=0,fpsT=0,checked=store.get('cellhq-q')!=null;
+resize();cam.position.copy(vPos('tissue')).multiplyScalar(1.5);ctl.target.set(0,0,0);flyTo('tissue',2.2);
+function loop(fdt,noRender){const dt=fdt??Math.min(clock.getDelta(),.05);tSim+=dt;const t=tSim;const now=TEST?tSim*1000:performance.now();
+  if(S.fly){const k=Math.min(1,(now-S.fly.t0)/S.fly.dur),e=ease(k);cam.position.lerpVectors(S.fly.s.p,S.fly.e.p,e);ctl.target.lerpVectors(S.fly.s.t,S.fly.e.t,e);
+    if(k>=1){const v=VIEWS[S.fly.v];ctl.minDistance=v.min*fitK();ctl.maxDistance=v.max*fitK();S.fly=null;}}
+  if(S.pend&&(TEST?tSim:now/1000)>=S.pend.at){S.pend=null;S.cut=true;S.czT=0;ui();}
+  ctl.update();
+  /* القطع التدريجي */
+  S.cz+=((S.czT>50?S.czT:S.czT)-S.cz)*Math.min(1,dt*(S.czT>50?6:1.8));if(S.czT<50&&S.cz>D/2+.3)S.cz=D/2+.3;clip.constant=S.cz>D/2+.25&&S.czT>50?60:S.cz;
+  const capOn=S.cut&&S.cz<.03;[cW,cM].forEach(m=>{m.visible=S.cut;m.position.z=Math.min(S.cz,0)+.001;m.material.opacity+=((capOn?1:0)-m.material.opacity)*Math.min(1,dt*5);});cMhit.visible=capOn;cMhit.position.z=.002;cV.visible=S.cut&&S.cz<VAC.c.z+VAC.s.z/2-.05;cV.position.z=Math.min(S.cz,0);
+  /* إخفاء الصف الأمامي عند الدخول */
+  const fT=S.mode==='cell'?0:1;S.fade+=(fT-S.fade)*Math.min(1,dt*2.5);nbFront.opacity=.5*S.fade;nbChlF.opacity=S.fade;nbWF.visible=nbCF.visible=S.fade>.02;
+  animCell(t,dt*10);
+  /* إبراز الجزء المختار */
+  const pul=.5+.5*Math.sin(t*4);
+  [[chlM,'chl',.18],[mitM,'mito',.12],[grM,'cyto',.3]].forEach(([m,k,b])=>{const v=S.sel===k?b+.5*pul:b;m.hi.emissiveIntensity=m.lo.emissiveIntensity=v;});
+  [nucM.hi,nucM.lo].forEach(m=>{m.emissive.set('#5A2E9A');m.emissiveIntensity=S.sel==='nuc'?.35*pul:0;});
+  [vacM.hi,vacM.lo].forEach(m=>{m.emissive.set('#3E7FD0');m.emissiveIntensity=S.sel==='vac'?.25*pul:0;});
+  capWall.emissive.set('#5FAF3A');capWall.emissiveIntensity=S.sel==='wall'?.6*pul:0;capMem.emissiveIntensity=S.sel==='mem'?.5+1.2*pul:.5;
+  [wallM.hi,wallM.lo].forEach(m=>{m.emissive.set('#4C9A2A');m.emissiveIntensity=S.sel==='wall'?.25*pul:0;});
+  /* التسميات */
+  place(lSel,S.sel?anchor(S.sel):V,S.mode==='cell'&&!!S.sel&&!S.fly,S.sel?PARTS[S.sel].n:'');
+  place(lT1,P3.set(0,Hc/2+.15,D/2),S.mode==='tissue'&&!S.fly,'خلية واحدة');place(lT2,P3.set(-6.7,Hc/2+.3,-2.95),S.mode==='tissue'&&!S.fly,'خلايا متراصّة في طبقات');
+  /* العمق الضبابي يتبع الهدف */
+  if(noRender){}else if(composer&&HQ){bokeh.uniforms.focus.value=cam.position.distanceTo(ctl.target)*(S.mode==='cell'?.92:1);bokeh.uniforms.aperture.value=S.mode==='cell'?.0006:.0011;composer.render(dt);}else R.render(scene,cam);
+  /* فحص السرعة مرة واحدة: إن كان الجهاز بطيئًا نتحوّل إلى الخفيفة */
+  if(!checked&&HQ&&t>1.5){fpsN++;fpsT+=dt;if(fpsT>2.5){checked=true;if(fpsN/fpsT<26){HQ=false;applyQ();toast('تحوّلنا إلى الجودة الخفيفة لأن جهازك أبطأ. يمكنك تغييرها من زر الجودة.');}}}
+  if(!TEST)requestAnimationFrame(()=>loop());}
+$('#qbtn').onclick=()=>{HQ=!HQ;checked=true;store.set('cellhq-q',HQ?'hi':'lo');applyQ();};
+applyQ();ui();$('#load').remove();if(TEST){checked=true;window.__step=(sec,dt=1/30)=>{const n=Math.round(sec/dt);for(let i=0;i<n;i++)loop(dt,i<n-1);};}else loop();
+window.__S=S;window.__scr=k=>{const p=anchor(k).clone();if(k==='nuc')p.set(NUC.c.x,NUC.c.y,NUC.c.z+NUC.r);p.project(cam);const r=cv.getBoundingClientRect();return [(p.x*.5+.5)*r.width,(-p.y*.5+.5)*r.height];};window.__dive=dive;window.__select=select;window.__setQ=v=>{HQ=v;checked=true;applyQ();};
+
+</script>
