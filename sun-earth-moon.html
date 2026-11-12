@@ -1,0 +1,523 @@
+<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>الكون والنظام الشمسي</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: a WebGL sun–earth–moon system fills the stage; station chips on top; the mission card (side on desktop, bottom on phones) carries sliders, checks and questions; a small "seen from Earth" window shows the moon or sun as observed. */
+:root{--bg:#EEF1F6;--panel:rgba(255,255,255,.95);--ink:#24161A;--muted:#6B5A5E;--line:#E5D6D8;--accent:#1F5FBF;--accent-soft:#E3ECFA;--ok:#15803D;--ok-bg:#E6F6EA;--bad:#C2410C;--bad-bg:#FFF0E6;
+ --display:"Baloo Bhaijaan 2","IBM Plex Sans Arabic",system-ui,sans-serif;--body:"IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#140D10;--panel:rgba(30,20,24,.95);--ink:#F2E8EA;--muted:#B9A5AA;--line:#3A2A30;--accent:#8DB4FF;--accent-soft:#18233D;--ok:#4ADE80;--ok-bg:#12291C;--bad:#FB923C;--bad-bg:#2E1C10;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#140D10;--panel:rgba(30,20,24,.95);--ink:#F2E8EA;--muted:#B9A5AA;--line:#3A2A30;--accent:#8DB4FF;--accent-soft:#18233D;--ok:#4ADE80;--ok-bg:#12291C;--bad:#FB923C;--bad-bg:#2E1C10;color-scheme:dark}
+html,body{direction:rtl}*{box-sizing:border-box}[hidden]{display:none!important}html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;overflow:hidden}
+#stage{position:fixed;inset:0;touch-action:none;user-select:none}#cv{width:100%;height:100%;display:block;cursor:grab}
+.top{position:fixed;top:0;inset-inline:0;z-index:5;padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));display:grid;gap:6px;justify-items:center;pointer-events:none}
+h1{margin:0;font:800 clamp(1.15rem,3vw,1.6rem)/1.2 var(--display);background:var(--panel);padding:4px 16px;border-radius:99px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.nav{display:flex;gap:4px;background:var(--panel);border-radius:99px;padding:4px;box-shadow:0 2px 10px rgba(0,0,0,.15);pointer-events:auto;flex-wrap:wrap;justify-content:center}
+.nav button{border:0;background:none;color:var(--muted);font:600 .85rem var(--body);padding:4px 11px;border-radius:99px;cursor:pointer}.nav button.on{background:var(--accent);color:#fff}.nav button.done{color:var(--ok)}
+#sys{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;pointer-events:auto}
+#sys button{border:1.5px solid transparent;background:var(--panel);color:var(--ink);font:600 .8rem var(--body);padding:3px 10px;border-radius:99px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.12)}#sys button.on{border-color:var(--accent)}
+#sys i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-inline-end:5px}
+.card{position:fixed;bottom:0;transition:transform .25s ease;inset-inline:0;z-index:6;margin:0 auto;max-width:620px;padding:0 max(12px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.cin{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,.18);display:grid;gap:8px;max-height:42vh;overflow:auto}
+.kick{margin:0;font-size:.78rem;font-weight:700;color:var(--accent)}h2{margin:0;font:800 1.25rem/1.3 var(--display)}
+.lead{margin:0}.step{margin:0;font-weight:700}.small{margin:0;font-size:.85rem;color:var(--muted)}
+.seq{display:flex;flex-wrap:wrap;gap:6px}.seq span{border:1.5px dashed var(--line);border-radius:10px;padding:2px 10px;font-size:.85rem;color:var(--muted);min-width:34px;text-align:center}.seq span.f{border-style:solid;border-color:var(--ok);background:var(--ok-bg);color:var(--ink);font-weight:600}
+.opts{display:grid;gap:6px}.opt{text-align:start;border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:12px;padding:8px 12px;font:500 .95rem var(--body);cursor:pointer}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}.opt:disabled{cursor:default}
+.fb{margin:0;font-size:.92rem}.fb.ok{color:var(--ok)}.fb.bad{color:var(--bad)}
+.rule{background:var(--accent-soft);border-radius:12px;padding:8px 12px;margin:0}.rule b{display:block;font-family:var(--display)}
+.info{margin:0;background:var(--accent-soft);border-radius:12px;padding:8px 12px}.info b{display:block;font-family:var(--display);font-size:1.05rem}
+.go{border:0;background:var(--accent);color:#fff;border-radius:12px;padding:8px 16px;font:700 .95rem var(--body);cursor:pointer;justify-self:start}.go:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:5px}.chips span{font-size:.78rem;border:1px solid var(--line);border-radius:99px;padding:0 9px;color:var(--muted)}.chips span.got{background:var(--ok-bg);border-color:var(--ok);color:var(--ink)}
+.src{font-size:.72rem;color:var(--muted);margin:0}
+#toast{position:fixed;z-index:8;top:calc(150px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:rgba(30,14,18,.92);color:#FBEFF1;border-radius:12px;padding:8px 16px;font-weight:600;max-width:min(90vw,460px);text-align:center;pointer-events:none}
+:focus-visible{outline:3px solid #F59F00;outline-offset:2px}
+@media (min-width:900px){.card{inset-inline:auto;inset-inline-start:max(16px,env(safe-area-inset-right,0px));bottom:auto;top:calc(110px + env(safe-area-inset-top,0px));width:380px;padding:0}.cin{max-height:calc(100vh - 140px)}.hd .tg{display:none}}
+.hd{display:flex;align-items:center;gap:8px}.hd>div{flex:1;min-width:0}.hd .tg{border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;width:36px;height:32px;font-size:1rem;cursor:pointer;flex:none}
+.dots{display:flex;gap:5px;align-items:center;font-size:.75rem;color:var(--muted)}.dots i{width:22px;height:5px;border-radius:9px;background:var(--line)}.dots i.c{background:var(--accent)}.dots i.d{background:var(--ok)}
+.card.mini .lead,.card.mini .src,.card.mini .full{display:none}.card.mini h2{font-size:1rem}.card.mini .cin{gap:5px;padding:8px 14px}
+.tstep{display:flex;align-items:center;gap:8px}.tstep b{font:800 1.15rem var(--display);color:var(--accent)}.tno{font-size:.75rem;background:var(--accent-soft);border-radius:99px;padding:1px 9px;font-variant-numeric:tabular-nums}
+.ttx{margin:0;font-weight:600}.tfd{margin:0;font-size:.9rem;color:var(--muted);background:var(--accent-soft);border-radius:10px;padding:5px 10px}
+.tnav{display:flex;gap:6px}.tb{border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:12px;padding:9px 12px;font:700 .95rem var(--body);cursor:pointer}.tb:disabled{opacity:.4;cursor:default}.tb.go2{flex:1;background:var(--accent);color:#fff;border-color:var(--accent)}.tb.go2:disabled{background:var(--line);border-color:var(--line);color:var(--muted);opacity:1}
+.grip{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;background:var(--panel);color:var(--muted);border-radius:14px 14px 0 0;padding:5px 0 3px;cursor:grab;touch-action:none;font:500 .72rem var(--body);margin-bottom:-12px;padding-bottom:14px;box-shadow:0 -2px 10px rgba(0,0,0,.12)}
+.grip span{width:42px;height:5px;border-radius:9px;background:var(--line)}.grip:active{cursor:grabbing}.card.moved{margin:0;max-width:none;transition:none}.card.drag .cin{box-shadow:0 10px 34px rgba(0,0,0,.35)}
+.olist{display:grid;gap:8px}.ogrp{display:grid;gap:4px}.ogrp b{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:6px}.ogrp b i{width:9px;height:9px;border-radius:50%}
+.obtn{border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:99px;padding:2px 10px;font:600 .82rem var(--body);cursor:pointer}.obtn.got{border-color:var(--ok);background:var(--ok-bg)}.obtn.sel{border-color:var(--accent);background:var(--accent);color:#fff}
+.ends{display:flex;justify-content:space-between;direction:ltr;font-size:.78rem;color:var(--muted)}.pulse{margin:0;font-size:1.05rem;background:var(--accent-soft);border-radius:10px;padding:6px 10px}
+.hint2{margin:0;font-size:.85rem;color:var(--muted)}
+.pane{display:grid;gap:8px}
+@media (max-width:600px){h2{font-size:1.1rem}.cin{max-height:40vh}.nav button{padding:3px 8px;font-size:.8rem}}
+
+body{background:#04060c}
+.chk{margin:0;padding:0;list-style:none;display:grid;gap:4px}.chk li{border:1.5px solid var(--line);border-radius:10px;padding:4px 10px;font-size:.9rem;color:var(--muted)}
+.chk li.ok{border-color:var(--ok);background:var(--ok-bg);color:var(--ink)}.chk li.cur{border-color:var(--accent);color:var(--ink);font-weight:700}
+.sl{display:grid;gap:3px;background:var(--accent-soft);border-radius:12px;padding:7px 10px}.sl label{font-weight:700;font-size:.88rem}
+.row1{display:flex;align-items:center;gap:8px}.row1 input{flex:1;min-width:0;accent-color:var(--accent);height:28px}.row1 output{min-width:92px;text-align:center;font-weight:700;font-size:.88rem;font-variant-numeric:tabular-nums}
+.play{width:34px;height:34px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:.95rem;cursor:pointer;flex:none}
+.info2{display:grid;gap:2px;font-size:.88rem;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:6px 10px}
+.tg{display:flex;gap:8px;align-items:center;font-weight:700;font-size:.9rem;background:var(--bad-bg);border-radius:12px;padding:6px 10px;cursor:pointer}
+.qb{display:grid;gap:6px}
+#labels{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;background:rgba(10,16,32,.82);color:#EAF1FF;font:600 12.5px var(--body);padding:2px 9px;border-radius:99px;white-space:nowrap;border:1px solid rgba(255,255,255,.18)}
+.lbl.sm{font-size:11px;padding:1px 7px;color:#FFE7A3}.lbl.pinl{background:#C92A2A;border-color:#fff}
+#inset{position:fixed;z-index:3;width:min(190px,30vw);aspect-ratio:1;border-radius:18px;border:3px solid #B9C7E6;box-shadow:0 6px 24px rgba(0,0,0,.5);pointer-events:none;overflow:hidden}
+#inset b{position:absolute;top:4px;inset-inline:0;text-align:center;font:700 11.5px var(--body);color:#DCE6FF;text-shadow:0 1px 3px #000}
+#inset span{position:absolute;bottom:5px;inset-inline:0;text-align:center;font:800 14px var(--display);color:#FFE7A3;text-shadow:0 1px 3px #000}
+#ins2{position:fixed;z-index:3;width:min(230px,42vw);height:min(150px,27vw);border-radius:14px;border:2px solid #fff;box-shadow:0 6px 24px rgba(0,0,0,.45);pointer-events:none}
+
+.bar{display:block;height:8px;background:var(--line);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#3d8bff,#22d3ee);border-radius:99px}
+.seg2{display:flex;gap:4px;background:var(--line);border-radius:99px;padding:3px}.seg2 button{flex:1;border:0;background:none;color:var(--ink);font:700 .85rem var(--body);padding:6px 4px;border-radius:99px;cursor:pointer}.seg2 button.on{background:var(--accent);color:#fff}.seg2 button:disabled{opacity:.4;cursor:not-allowed}
+.sw{display:inline-block;width:12px;height:12px;border-radius:50%;margin-inline-end:6px;vertical-align:-1px;border:1px solid rgba(0,0,0,.25)}.sm2{font-size:.75rem;color:var(--muted);white-space:nowrap}.cc{display:block;text-align:center;font-weight:700;font-size:.88rem}
+.navtg{pointer-events:auto;border:0;background:var(--panel);color:var(--ink);font:700 .8rem var(--body);padding:4px 12px;border-radius:99px;box-shadow:0 2px 8px rgba(0,0,0,.25);cursor:pointer}
+.navtg b{color:var(--accent)}.top.collapsed .nav{display:none}
+@media (max-width:600px){#toast{top:auto;bottom:calc(42vh + 14px);font-size:.82rem;padding:6px 12px}.row1 output{min-width:80px;font-size:.8rem}#inset{width:min(118px,30vw)}#ins2{height:96px;width:150px}}
+</style>
+<div id="stage"><canvas id="cv" aria-label="نموذج ثلاثي الأبعاد للكون والنظام الشمسي"></canvas></div>
+<div id="labels" aria-hidden="true"></div>
+<div class="top"><h1>🌌 الكون والنظام الشمسي</h1><button type="button" class="navtg" id="navtg" aria-expanded="true" aria-controls="ms"></button><nav class="nav" id="ms" aria-label="المحطات"></nav></div>
+<div id="inset" hidden aria-hidden="true"><b id="inT">القمر كما يُرى من الأرض</b><span id="inP"></span></div>
+<canvas id="ins2" hidden aria-label="زاوية أشعة الشمس وطول الظل في الرياض"></canvas>
+<div class="card"><button class="grip" type="button" id="grip" aria-label="اسحب لتحريك البطاقة. اضغط مرتين لإعادتها"><span></span><small>اسحب لتحريك البطاقة</small></button><div class="cin" id="cin" aria-live="polite"></div></div>
+<div id="toast" role="status" hidden></div>
+<script type="module">
+let T3=null;try{T3=await import('./three.module.min.js');}catch(e){try{T3=await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js');}catch(e2){}}
+if(T3)window.THREE=T3;
+(()=>{'use strict';
+const $=s=>document.querySelector(s),ar=(n,d=0)=>Number(n).toLocaleString('ar-SA',{maximumFractionDigits:d,minimumFractionDigits:0});
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!window.THREE){$('#cin').innerHTML='<h2>تعذّر تحميل المحرك ثلاثي الأبعاد</h2><p class="lead">تأكد من اتصالك بالإنترنت ثم أعد تحميل الصفحة.</p>';return;}
+const T=THREE,D2R=Math.PI/180,UP=new T.Vector3(0,1,0);
+const cv=$('#cv');let W=innerWidth,H=innerHeight,CX0=W/2,CY0=H/2,AVH=H,TOP=100;
+const R=new T.WebGLRenderer({canvas:cv,antialias:true,preserveDrawingBuffer:location.search.includes('test')});
+R.setPixelRatio(Math.min(devicePixelRatio||1,1.75));R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;
+const scene=new T.Scene();scene.background=new T.Color('#04060c');
+const cam=new T.PerspectiveCamera(42,W/H,.05,600);
+
+/* ===== خامات مولّدة بالبرمجة ===== */
+const P=new Uint8Array(512);{const p=[...Array(256).keys()];let s=7;for(let i=255;i>0;i--){s=(s*16807)%2147483647;const j=s%(i+1);[p[i],p[j]]=[p[j],p[i]];}for(let i=0;i<512;i++)P[i]=p[i&255];}
+const fade=t=>t*t*(3-2*t),hsh=(x,y)=>P[(P[x&255]+y)&255]/255;
+function vn(x,y){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=fade(xf),v=fade(yf);const a=hsh(xi,yi),b=hsh(xi+1,yi),c=hsh(xi,yi+1),d=hsh(xi+1,yi+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+function fbm(x,y,o=4){let s=0,a=.5,f=1;for(let i=0;i<o;i++){s+=a*vn(x*f,y*f);f*=2;a*=.5;}return s/(1-Math.pow(.5,o));}
+/* حلقة على سطح كروي بلا خط فاصل: نستخدم إحداثيات أسطوانية */
+const sph=(u,v,k)=>{const a=u*2*Math.PI;return [Math.cos(a)*k+40,Math.sin(a)*k+40,v*k*2];};
+function fbmS(u,v,k,o){const [x,y,z]=sph(u,v,k);return (fbm(x+z*.31,y-z*.47,o)+fbm(z+x*.2,y*.9+11,o))*.5;}
+const LAND=[
+ [[-17,21],[-16,12],[-8,4.5],[5,4],[9,4],[10,-1],[13,-6],[12,-17],[15,-27],[18,-35],[25,-34],[33,-26],[35,-20],[40,-15],[40,-5],[44,2],[51,11],[43,11.5],[38,18],[33,28],[32,31],[25,32],[20,32],[10,34],[10,37],[-6,36],[-10,30]],
+ [[35,28],[39,22],[43,13],[45,12.5],[52,16],[57,19],[59,22.5],[56,26],[51,25],[48,29.5],[45,30],[39,32],[35,32]],
+ [[-10,36],[-9,43],[-2,43.5],[-4,48],[2,51],[8,54],[10,57],[5,58],[5,62],[15,69],[25,71],[40,67],[60,69],[70,73],[80,73],[100,77],[110,74],[130,71],[140,72],[160,70],[180,68],[180,62],[163,60],[157,51],[143,59],[135,54],[140,47],[128,40],[126,35],[122,40],[118,38],[122,31],[121,25],[110,20],[108,15],[109,11],[105,9],[103,1.5],[100,6],[98,10],[98,16],[94,17],[90,22],[86,20],[80,15],[77,8],[73,17],[72,21],[67,25],[62,25],[57,26],[56,27],[50,30],[48,30],[45,35],[40,37],[36,36],[35,33],[28,37],[26,40],[23,36],[20,40],[19,42],[13,45],[12,44],[16,41],[16,38],[12,38],[10,44],[5,43],[3,42],[-2,37],[-6,36]],
+ [[-168,66],[-162,60],[-152,58],[-140,60],[-132,55],[-124,48],[-124,40],[-118,34],[-110,23],[-105,20],[-97,16],[-92,15],[-87,13],[-83,9],[-80,8],[-77,8],[-80,10],[-84,15],[-87,21],[-90,21],[-91,19],[-97,22],[-97,28],[-90,29.5],[-84,30],[-81,25],[-80,27],[-81,31],[-76,35],[-74,40],[-70,42],[-66,44],[-60,46],[-56,52],[-61,56],[-64,60],[-70,60],[-78,62],[-80,55],[-90,57],[-95,62],[-90,68],[-110,68],[-125,70],[-140,70],[-156,71],[-166,68]],
+ [[-50,60],[-44,60],[-22,70],[-18,77],[-30,83],[-60,82],[-72,78],[-56,70]],
+ [[-80,8],[-77,8],[-72,12],[-62,11],[-52,5],[-50,0],[-35,-5],[-39,-15],[-41,-22],[-48,-26],[-53,-34],[-58,-38],[-62,-39],[-65,-45],[-68,-52],[-72,-54],[-74,-50],[-73,-40],[-71,-30],[-70,-18],[-76,-14],[-81,-6],[-80,0],[-78,2]],
+ [[114,-22],[114,-34],[118,-35],[124,-33],[132,-31],[138,-35],[141,-38],[147,-38],[150,-37],[153,-28],[153,-25],[146,-19],[142,-11],[136,-12],[131,-11],[126,-14],[122,-18]],
+ [[-5,50],[1,51],[2,52.5],[-2,56],[-3,58.5],[-6,58],[-5,55],[-3,54],[-5,52]],[[44,-25],[47,-25],[50,-15],[49,-12],[44,-17]],
+ [[109,1],[117,7],[119,1],[116,-4],[110,-3]],[[95,5],[98,4],[106,-6],[104,-5.5],[100,-1]],[[130,31],[132,34],[140,36],[142,41],[140,43],[136,35],[131,33]],
+ [[106,-6],[115,-8],[114,-8.5],[106,-7]],[[131,-1],[138,-2],[147,-6],[150,-10],[142,-9],[137,-5],[132,-4]],[[166,-46],[174,-41],[178,-38],[173,-35],[172,-41],[167,-46]],
+ [[-180,-70],[180,-70],[180,-90],[-180,-90]],[[-105,68],[-95,72],[-80,73],[-70,70],[-62,66],[-75,64],[-90,64]]];
+function earthTex(){const w=1024,h=512,m=document.createElement('canvas');m.width=w;m.height=h;const g=m.getContext('2d');g.fillStyle='#000';g.fillRect(0,0,w,h);g.fillStyle='#fff';g.filter='blur(1.2px)';
+  const X=l=>(l+180)/360*w,Y=b=>(90-b)/180*h;LAND.forEach(p=>{g.beginPath();p.forEach(([l,b],i)=>i?g.lineTo(X(l),Y(b)):g.moveTo(X(l),Y(b)));g.closePath();g.fill();});
+  const mk=g.getImageData(0,0,w,h).data;const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');const im=x.createImageData(w,h),d=im.data;
+  for(let j=0;j<h;j++){const lat=90-(j+.5)/h*180,al=Math.abs(lat);for(let i=0;i<w;i++){const k=(j*w+i)*4,u=i/w,v=j/h,land=mk[k]/255;
+    const n=fbmS(u,v,6,4),n2=fbmS(u+.3,v,18,3);
+    let oc=[12+n*18,48+n*40,110+n*55];if(al>72)oc=[200,215,230];
+    const dry=Math.max(0,1-Math.abs(al-24)/11)*(.55+n2*.7);let ln=[60+n*45,115+n*40,55+n*20];
+    const sand=[205+n2*25,178+n2*20,122+n2*15];ln=ln.map((v2,q)=>v2+(sand[q]-v2)*Math.min(1,dry*1.15));
+    if(al>58){const t=Math.min(1,(al-58)/14);ln=ln.map(v2=>v2+(235-v2)*t);}
+    const r=oc.map((v2,q)=>v2+(ln[q]-v2)*land);d[k]=r[0];d[k+1]=r[1];d[k+2]=r[2];d[k+3]=255;}}
+  x.putImageData(im,0,0);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.anisotropy=4;return t;}
+function cloudTex(){const w=512,h=256,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),im=x.createImageData(w,h),d=im.data;
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const k=(j*w+i)*4,n=fbmS(i/w,j/h,8,4),a=Math.max(0,Math.min(1,(n-.52)*3.2));d[k]=d[k+1]=d[k+2]=255;d[k+3]=a*200;}
+  x.putImageData(im,0,0);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
+function moonTex(){const w=512,h=256,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),im=x.createImageData(w,h),d=im.data;
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const k=(j*w+i)*4,n=fbmS(i/w,j/h,10,4),m=fbmS(i/w+.5,j/h,2.2,3);let g=150+n*60;if(m>.56)g-=Math.min(55,(m-.56)*380);d[k]=g;d[k+1]=g;d[k+2]=g*.97;d[k+3]=255;}
+  x.putImageData(im,0,0);let s=11;const rnd=()=>{s=(s*16807)%2147483647;return s/2147483647;};
+  for(let q=0;q<140;q++){const cx=rnd()*w,cy=h*.1+rnd()*h*.8,r=1.5+Math.pow(rnd(),3)*16;x.fillStyle='rgba(60,60,60,.35)';x.beginPath();x.arc(cx,cy,r,0,7);x.fill();x.strokeStyle='rgba(235,235,230,.45)';x.lineWidth=Math.max(.8,r*.18);x.beginPath();x.arc(cx-r*.1,cy-r*.1,r,3.4,6.1);x.stroke();}
+  const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
+function sunTex(){const w=256,h=128,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),im=x.createImageData(w,h),d=im.data;
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const k=(j*w+i)*4,n=fbmS(i/w,j/h,14,3);d[k]=255;d[k+1]=150+n*90;d[k+2]=30+n*60;d[k+3]=255;}x.putImageData(im,0,0);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
+function glowTex(){const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d'),g=x.createRadialGradient(128,128,10,128,128,128);g.addColorStop(0,'rgba(255,240,200,1)');g.addColorStop(.25,'rgba(255,200,90,.55)');g.addColorStop(.6,'rgba(255,140,40,.12)');g.addColorStop(1,'rgba(255,120,30,0)');x.fillStyle=g;x.fillRect(0,0,256,256);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
+
+/* ===== المشهد ===== */
+const ORB=30,ER=1.2,MR=.42,MOR=6,SUNR=2.6,INC=18*D2R,EPS=23.44*D2R;
+{const n=1600,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const u=Math.random()*2-1,a=Math.random()*6.283,r=Math.sqrt(1-u*u);pos.set([r*Math.cos(a)*300,u*300,r*Math.sin(a)*300],i*3);}
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(pos,3));scene.add(new T.Points(g,new T.PointsMaterial({color:0xdde6ff,size:1.4,sizeAttenuation:false})));}
+const sun=new T.Mesh(new T.SphereGeometry(SUNR,48,32),new T.MeshBasicMaterial({map:sunTex()}));scene.add(sun);
+const glow=new T.Sprite(new T.SpriteMaterial({map:glowTex(),blending:T.AdditiveBlending,transparent:true,depthWrite:false}));glow.scale.set(SUNR*5.2,SUNR*5.2,1);scene.add(glow);
+const light=new T.PointLight(0xfff4e8,4.2,0,0);light.castShadow=true;light.shadow.mapSize.set(2048,2048);light.shadow.camera.near=8;light.shadow.camera.far=60;light.shadow.bias=-.0015;light.shadow.radius=3;scene.add(light);
+scene.add(new T.AmbientLight(0x8899cc,.06));
+const earthPivot=new T.Group(),tilt=new T.Group();scene.add(earthPivot);earthPivot.add(tilt);
+const earth=new T.Mesh(new T.SphereGeometry(ER,72,48),new T.MeshStandardMaterial({map:earthTex(),roughness:.82,metalness:0}));earth.castShadow=earth.receiveShadow=true;tilt.add(earth);
+const clouds=new T.Mesh(new T.SphereGeometry(ER*1.012,64,40),new T.MeshStandardMaterial({map:cloudTex(),transparent:true,depthWrite:false,roughness:1}));clouds.receiveShadow=true;earth.add(clouds);
+const axis=new T.Mesh(new T.CylinderGeometry(.018,.018,ER*3.1,8),new T.MeshBasicMaterial({color:0xffe08a}));tilt.add(axis);
+const npole=new T.Vector3(0,ER*1.55,0);
+const loc=(lon,lat,r=ER)=>new T.Vector3(Math.cos(lat*D2R)*Math.cos(lon*D2R)*r,Math.sin(lat*D2R)*r,-Math.cos(lat*D2R)*Math.sin(lon*D2R)*r);
+const RIY=loc(46.7,24.7);const pin=new T.Group();{const n=RIY.clone().normalize();const s=new T.Mesh(new T.SphereGeometry(.055,16,12),new T.MeshBasicMaterial({color:0xff4d4d}));s.position.copy(n.clone().multiplyScalar(ER*1.08));
+  const st=new T.Mesh(new T.CylinderGeometry(.012,.012,ER*.09,6),new T.MeshBasicMaterial({color:0xffffff}));st.position.copy(n.clone().multiplyScalar(ER*1.04));st.quaternion.setFromUnitVectors(UP,n);pin.add(s,st);}earth.add(pin);
+const eqLine=new T.Mesh(new T.TorusGeometry(ER*1.003,.006,6,96),new T.MeshBasicMaterial({color:0x9fd3ff,transparent:true,opacity:.45}));eqLine.rotation.x=Math.PI/2;tilt.add(eqLine);
+const moon=new T.Mesh(new T.SphereGeometry(MR,48,32),new T.MeshStandardMaterial({map:moonTex(),roughness:1,metalness:0,emissive:0x000000}));moon.castShadow=moon.receiveShadow=true;scene.add(moon);
+const ring=(r,col,op)=>{const pts=[];for(let i=0;i<=160;i++){const a=i/160*Math.PI*2;pts.push(new T.Vector3(Math.cos(a)*r,0,-Math.sin(a)*r));}return new T.Line(new T.BufferGeometry().setFromPoints(pts),new T.LineBasicMaterial({color:col,transparent:true,opacity:op}));};
+const earthOrbit=ring(ORB,0x6f86b8,.5);scene.add(earthOrbit);
+const moonOrbit=ring(MOR,0xc9ced8,.55);scene.add(moonOrbit);
+const eclPlane=new T.Mesh(new T.RingGeometry(MOR*.2,MOR*1.15,64),new T.MeshBasicMaterial({color:0x6f86b8,transparent:true,opacity:.08,side:T.DoubleSide,depthWrite:false}));eclPlane.rotation.x=-Math.PI/2;scene.add(eclPlane);
+/* أشعة الشمس (للمحطة ٢) */
+const rays=new T.Group();scene.add(rays);for(let i=0;i<5;i++){const m=new T.Mesh(new T.CylinderGeometry(.03,.03,1,6),new T.MeshBasicMaterial({color:0xffd27a,transparent:true,opacity:.55}));rays.add(m);}
+/* ملصقات */
+const LBL=[];function lbl(t,get,cls=''){const e=document.createElement('div');e.className='lbl '+cls;e.textContent=t;$('#labels').appendChild(e);const o={e,get,on:1};LBL.push(o);return o;}
+const L={sun:lbl('الشمس',()=>sun.position.clone().add(new T.Vector3(0,SUNR*1.15,0))),earth:lbl('الأرض',()=>earthPivot.position.clone().add(new T.Vector3(0,-ER*S.esc*1.35,0))),moon:lbl('القمر',()=>moon.position.clone().add(new T.Vector3(0,MR*1.6,0))),
+ riy:lbl('الرياض',()=>pin.children[0].getWorldPosition(new T.Vector3()),'pinl'),np:lbl('القطب الشمالي',()=>tilt.localToWorld(npole.clone()),'sm'),ax:lbl('محور الأرض',()=>tilt.localToWorld(new T.Vector3(0,-ER*1.5,0)),'sm'),
+ jun:lbl('يونيو',()=>orbPos(172).add(new T.Vector3(0,-4,0)),'sm'),dec:lbl('ديسمبر',()=>orbPos(355).add(new T.Vector3(0,-4,0)),'sm'),mar:lbl('مارس',()=>orbPos(80).add(new T.Vector3(0,-4,0)),'sm'),sep:lbl('سبتمبر',()=>orbPos(266).add(new T.Vector3(0,-4,0)),'sm')};
+
+/* ===== الحالة ===== */
+const S={sd:0,cm:'stars',tmp:.5,pick:null,gx:null,st:0,day:80,hour:9,md:3,eps:EPS,esc:1,play:0,done:[0,0,0,0,0,0,0,0],t:{},q:{},sun0:0,spin:0,cs:[],ecl:''};
+const MONTHS=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],MD=[31,28,31,30,31,30,31,31,30,31,30,31];
+const dateOf=d=>{let m=0,x=Math.round(d);while(m<11&&x>MD[m]){x-=MD[m];m++;}return ar(Math.max(1,x))+' '+MONTHS[m];};
+const thetaOf=d=>Math.PI+2*Math.PI*(d-172)/365.25;
+function orbPos(d){const t=thetaOf(d);return new T.Vector3(ORB*Math.cos(t),0,-ORB*Math.sin(t));}
+const sunDir=()=>earthPivot.position.clone().negate().normalize();
+function axisVec(){return new T.Vector3(Math.sin(S.eps),Math.cos(S.eps),0);}
+function place(){
+  earthPivot.position.copy(orbPos(S.day));earthPivot.scale.setScalar(S.esc);
+  tilt.quaternion.setFromUnitVectors(UP,axisVec());
+  // الدوران حول المحور: نضبط الزاوية لتوافق الساعة في الرياض
+  earth.rotation.y=0;earth.updateMatrixWorld(true);const h0=riyHour();earth.rotation.y=(S.hour-h0)*Math.PI/12;
+  const sd=sunDir(),sl=Math.atan2(-sd.z,sd.x),Lm=sl+S.md/29.53*2*Math.PI,inc=(S.st===2||S.st===3)?INC:0;
+  const mp=new T.Vector3(Math.cos(Lm),Math.sin(Lm)*Math.sin(inc),-Math.sin(Lm)*Math.cos(inc)).multiplyScalar(MOR);
+  moon.position.copy(earthPivot.position).add(mp);moon.lookAt(earthPivot.position);
+  moonOrbit.position.copy(earthPivot.position);moonOrbit.rotation.set(inc,0,0);eclPlane.position.copy(earthPivot.position);}
+function riyHour(){earthPivot.updateMatrixWorld(true);const n=pin.children[0].getWorldPosition(new T.Vector3()).sub(earthPivot.position).normalize(),a=axisVec(),d=sunDir();
+  const pn=n.clone().sub(a.clone().multiplyScalar(n.dot(a))).normalize(),pd=d.clone().sub(a.clone().multiplyScalar(d.dot(a))).normalize();
+  let ang=Math.atan2(a.dot(pd.clone().cross(pn)),pd.dot(pn));return ((12+ang*12/Math.PI)%24+24)%24;}
+const riyDay=()=>{const n=pin.children[0].getWorldPosition(new T.Vector3()).sub(earthPivot.position).normalize();return n.dot(sunDir());};
+const decl=()=>S.eps/D2R*Math.sin(2*Math.PI*(S.day-80)/365.25);
+const noonAlt=()=>90-Math.abs(24.7-decl());
+function season(){if(S.eps<.01)return 'لا فصول';const d=S.day;return d>=80&&d<172?'الربيع':d>=172&&d<266?'الصيف':d>=266&&d<355?'الخريف':'الشتاء';}
+function elong(){return ((S.md/29.53*360)%360+360)%360;}
+const PH=[['المحاق',0,12],['الهلال الأول',12,80],['التربيع الأول',80,100],['الأحدب الأول',100,168],['البدر',168,192],['الأحدب الأخير',192,260],['التربيع الأخير',260,280],['الهلال الأخير',280,348],['المحاق',348,361]];
+const phase=()=>{const e=elong();return PH.find(p=>e>=p[1]&&e<p[2])[0];};
+function eclipse(){const E=earthPivot.position,M=moon.position,sd=sunDir();const rel=M.clone().sub(E),along=rel.dot(sd),perp=rel.clone().sub(sd.clone().multiplyScalar(along)).length();
+  if(along<0){const sh=ER*(ORB+MOR)/ORB;if(perp<sh-MR*.6)return 'lunar';if(perp<sh+MR*.9)return 'plunar';}else{if(perp<ER*.75)return 'solar';if(perp<ER+MR)return 'psolar';}return '';}
+
+/* ===== الكاميرا ===== */
+const C={tgt:new T.Vector3(),az:0,el:.3,dist:6,goal:{az:0,el:.3,dist:6},user:0};
+function preset(){const sd=sunDir();const h=new T.Vector3().crossVectors(UP,sd).normalize();
+  if(S.st===0){C.goal={az:Math.atan2(h.x,h.z)-.25,el:.22,dist:8.6};}
+  else if(S.st===1){C.goal={az:.35,el:.95,dist:104};}
+  else if(S.st===2||S.st===7){C.goal={az:Math.atan2(h.x,h.z),el:1.0,dist:15.5};}
+  else if(S.st===4){C.goal={az:Math.atan2(h.x,h.z),el:1.2,dist:15};}
+  else if(S.st===5){C.goal={az:.3,el:.85,dist:52};}
+  else if(S.st===6){C.goal=S.cm==='stars'?{az:0,el:.12,dist:29}:S.cm==='galaxy'?{az:.4,el:.95,dist:50}:{az:.2,el:.3,dist:270};}
+  else C.goal={az:Math.atan2(h.x,h.z),el:.3,dist:17};}
+function camUpdate(k){if(!C.user&&S.st!==1)preset();const tg=(S.st===1||S.st===5||S.st===6)?new T.Vector3(0,0,0):earthPivot.position;C.tgt.lerp(tg,k);
+  if(!C.user){for(const q of ['az','el','dist']){let d=C.goal[q]-C[q];if(q==='az')d=Math.atan2(Math.sin(d),Math.cos(d));C[q]+=d*k;}}
+  const mob=W<600?[1.15,2.1,1.85,1.6,1.7,1.95,1.6,1.85][S.st]:1,dd=C.dist*mob*(C.zf||1);cam.position.set(C.tgt.x+dd*Math.cos(C.el)*Math.sin(C.az),C.tgt.y+dd*Math.sin(C.el),C.tgt.z+dd*Math.cos(C.el)*Math.cos(C.az));cam.lookAt(C.tgt);}
+const ptr=new Map();let pinch=0;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);if(ptr.size===2){const [a,b]=[...ptr.values()];pinch=Math.hypot(a[0]-b[0],a[1]-b[1]);}});
+cv.addEventListener('pointermove',e=>{if(!ptr.has(e.pointerId))return;const [px,py]=ptr.get(e.pointerId);ptr.set(e.pointerId,[e.clientX,e.clientY]);
+  if(ptr.size===2){const [a,b]=[...ptr.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(pinch)C.zf=Math.max(.45,Math.min(2.2,(C.zf||1)*pinch/d));pinch=d;C.user=1;return;}
+  C.az-=(e.clientX-px)*.006;C.el=Math.max(-1.2,Math.min(1.45,C.el+(e.clientY-py)*.005));C.user=1;});
+const pend=e=>{ptr.delete(e.pointerId);pinch=0;};cv.addEventListener('pointerup',pend);cv.addEventListener('pointercancel',pend);
+cv.addEventListener('wheel',e=>{e.preventDefault();C.zf=Math.max(.45,Math.min(2.2,(C.zf||1)*(1+Math.sign(e.deltaY)*.08)));},{passive:false});
+
+/* ===== منظر من الأرض (نافذة صغيرة) ===== */
+const icam=new T.PerspectiveCamera(10,1,.01,200);
+function insetRect(){const r=$('#inset').getBoundingClientRect();return r;}
+
+/* ===== البطاقة ===== */
+const STN=['الليل والنهار','الفصول الأربعة','أطوار القمر','الخسوف والكسوف','المد والجزر','النظام الشمسي','النجوم والمجرات','أختبر فهمي'];
+const SRC6='📖 كتاب العلوم للصف السادس، الجزء الثاني: الفصل الثامن «النظام الشمسي والنجوم والمجرات» ص٣٨–٦٧ · ⚠ النموذج ليس بمقياس رسم حقيقي · إعداد وتصميم: أ. خالد رفيع الحمدي';
+const SRC='📖 كتاب العلوم للصف السادس، الجزء الثاني: الفصل السابع «الشمس والأرض والقمر» ص٨–٣٧ · ⚠ النموذج ليس بمقياس رسم حقيقي: الأحجام والمسافات مقرّبة، وميل مدار القمر مُبالغ فيه للتوضيح · إعداد وتصميم: أ. خالد رفيع الحمدي';
+let navHidden=0;try{navHidden=localStorage.getItem('cosmos-nav')==='0'?1:0;}catch(e){}
+function navTg(){const top=$('.top'),b=$('#navtg');top.classList.toggle('collapsed',!!navHidden);b.setAttribute('aria-expanded',navHidden?'false':'true');
+  b.innerHTML=navHidden?`☰ المحطة ${ar(S.st+1)}: <b>${STN[S.st]}</b> ▾`:'إخفاء المحطات ▴';}
+$('#navtg').onclick=()=>{navHidden=navHidden?0:1;try{localStorage.setItem('cosmos-nav',navHidden?'0':'1');}catch(e){}navTg();};
+function nav(){navTg();$('#ms').innerHTML=STN.map((n,i)=>`<button type="button" class="${i===S.st?'on':S.done[i]?'done':''}" data-st="${i}">${S.done[i]?'✓ ':ar(i+1)+'. '}${n}</button>`).join('');$('#ms').querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>open(+b.dataset.st));}
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>e.hidden=true,2600);}
+const head=(k,h,lead)=>`<p class="kick">المحطة ${ar(S.st+1)} من ${ar(STN.length)} · ${k}</p><h2>${h}</h2>${lead?`<p class="lead">${lead}</p>`:''}`;
+function say(id,ok,t){const f=$('#'+id);if(f){f.className='fb '+(ok?'ok':'bad');f.innerHTML=t;}}
+const qd=id=>S.q[S.st+id];
+function mcq(id,Q){const done=qd(id);return `<div class="qb"><p class="step">${Q[0]}</p><div class="opts">${Q[1].map((o,i)=>`<button class="opt ${done&&o[1]?'right':''}" type="button" data-q="${id}:${i}" ${done?'disabled':''}>${o[0]}</button>`).join('')}</div><p class="fb ${done?'ok':''}" id="f_${id}">${done?Q[1].find(o=>o[1])[2]:''}</p></div>`;}
+function bindQ(QS,after){$('#cin').querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const [id,i]=b.dataset.q.split(':'),o=QS[id][1][+i];if(o[1]){S.q[S.st+id]=1;after&&after();render();say('f_'+id,1,o[2]);}else{b.classList.add('wrong');b.disabled=true;say('f_'+id,0,o[2]);}});}
+const chk=(arr)=>`<ol class="chk">${arr.map(([ok,cur,t],i)=>`<li class="${ok?'ok':cur?'cur':''}">${ok?'✓':ar(i+1)+'.'} ${t}</li>`).join('')}</ol>`;
+function slider(id,label,min,max,step,val,fmt){return `<div class="sl"><label for="${id}">${label}</label><div class="row1"><button type="button" class="play" id="pl" aria-label="تشغيل الحركة">${S.play?'⏸':'▶'}</button><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}"><output id="${id}o">${fmt}</output></div></div>`;}
+
+/* --- المحطة ١ --- */
+const Q1={a:['لماذا يبدو لنا أن الشمس تبزغ من الشرق وتتحرك في السماء نحو الغرب، ويتعاقب الليل والنهار؟',[['لأن الأرض تدور حول محورها',1,'صحيح! الأرض تدور حول محورها، فتبدو الشمس كأنها تتحرك. ونصف الأرض المواجه للشمس يكون نهارًا، والنصف الآخر ليلًا.'],['لأن الشمس تدور حول الأرض كل يوم',0,'هكذا ظنّ الناس قديمًا. لكن الشمس لا تدور حول الأرض؛ نحن نقف على أرض تدور حول محورها فتبدو الشمس متحركة. جرّب الشريط مرة أخرى ولاحظ: ماذا تحرّك أنت؟'],['لأن الأرض تدور حول الشمس',0,'دوران الأرض حول الشمس يستغرق سنة كاملة، ولا يسبّب الليل والنهار. لاحظ في النموذج: هل تحركت الأرض في مدارها عندما غيّرت الساعة؟']]],
+ b:['كم تستغرق دورة الأرض اليومية؟',[['٢٤ ساعة تقريبًا (يوم واحد)',1,'صحيح! تدور الأرض حول محورها دورة كاملة تُسمّى دورة الأرض اليومية، وتستغرق نحو ٢٤ ساعة.'],['٣٦٥٫٢٥ يومًا',0,'هذه مدة دورة الأرض السنوية حول الشمس، لا دورتها حول محورها.'],['٢٩٫٥ يومًا',0,'هذه مدة اكتمال أطوار القمر (الشهر القمري)، لا دورة الأرض حول محورها.']]]};
+function fmtH(h){h=((h%24)+24)%24;const hh=Math.floor(h),mm=Math.round((h-hh)*60/15)*15%60,H12=hh%12===0?12:hh%12;const p=hh===0&&mm===0?'منتصف الليل':hh===12&&mm===0?'ظهرًا':hh<12?'صباحًا':'مساءً';return `${ar(H12)}:${mm?ar(mm):'٠٠'} ${p}`;}
+function r1(){const t=S.t,ok1=t.noon,ok2=t.mid;S.done[0]=ok1&&ok2&&qd('a')&&qd('b')?1:0;
+  $('#cin').innerHTML=head('دورة الأرض اليومية','الليل والنهار','تدور الأرض حول محورها، وهو خط وهمي يمتد من القطب الشمالي إلى القطب الجنوبي مارًّا بمركزها. حرّك الشريط لتدير الأرض، وراقب مدينة الرياض 📍.')+
+   slider('hr','أدِر الأرض حول محورها',0,24,.25,S.hour,fmtH(S.hour))+`<p class="pulse" id="st1">${riyDay()>0?'☀️ نهار في الرياض':'🌙 ليل في الرياض'}</p>`+
+   chk([[ok1,!ok1,'أدِر الأرض حتى يصبح الوقت ظهرًا في الرياض: الشمس في أعلى نقطة لها'],[ok2,ok1&&!ok2,'الآن أدِرها حتى منتصف الليل في الرياض']])+
+   (ok1&&ok2?mcq('a',Q1.a)+(qd('a')?mcq('b',Q1.b):''):'')+(S.done[0]?'<button class="go" type="button" id="nx">التالي: الفصول الأربعة ←</button>':'')+`<p class="src">${SRC}</p>`;
+  bindSlider('hr',v=>{S.hour=v;},()=>fmtH(S.hour));bindQ(Q1,()=>{});const nx=$('#nx');if(nx)nx.onclick=()=>open(1);}
+function tick1(){const h=S.hour;let ch=0;if(!S.t.noon&&Math.abs(h-12)<.6){S.t.noon=1;ch=1;toast('ظهرًا في الرياض: الرياض تواجه الشمس مباشرة');}
+  else if(S.t.noon&&!S.t.mid&&(h<.6||h>23.4)){S.t.mid=1;ch=1;toast('منتصف الليل: الرياض في الجهة البعيدة عن الشمس');}
+  const e=$('#st1');if(e)e.textContent=riyDay()>0?'☀️ نهار في الرياض: الرياض في نصف الأرض المواجه للشمس':'🌙 ليل في الرياض: الرياض في نصف الأرض البعيد عن الشمس';if(ch)render();}
+
+/* --- المحطة ٢ --- */
+const Q2={a:['تكون الأرض أقرب ما يمكن إلى الشمس في شهر يناير. ماذا يدل ذلك؟',[['أن الفصول لا تحدث بسبب تغيّر المسافة بين الأرض والشمس',1,'صحيح! في يناير تكون الأرض أقرب إلى الشمس، ومع ذلك يكون الشتاء في النصف الشمالي. فالمسافة ليست سبب الفصول.'],['أن يناير يكون صيفًا في النصف الشمالي',0,'جرّب في النموذج: حرّك الأرض إلى يناير. أيّ فصل يكون في الرياض؟'],['أن الأرض تكون أدفأ ما يمكن في يناير',0,'يناير شتاء في النصف الشمالي، فلا يكون أدفأ الشهور هناك رغم قرب الأرض من الشمس.']]],
+ b:['عندما أزلت ميل المحور، ماذا حدث لزاوية أشعة الشمس ظهرًا في الرياض خلال السنة؟',[['بقيت ثابتة، فلم تعد الفصول تتغير',1,'صحيح! بدون ميل المحور تصنع أشعة الشمس الزاوية نفسها طوال السنة، فلا تتعاقب الفصول.'],['أصبحت أكبر في يونيو وأصغر في ديسمبر',0,'هذا ما يحدث والمحور مائل. حرّك الأرض في مدارها والميل مُزال، وراقب الزاوية: هل تتغير؟'],['أصبحت صفرًا فلا تصل أشعة الشمس',0,'ما زالت أشعة الشمس تصل إلى الرياض. راقب قيمة الزاوية وأنت تحرّك الأرض.']]],
+ c:['ما سبب حدوث الفصول الأربعة؟',[['ميل محور دوران الأرض أثناء دورانها حول الشمس',1,'صحيح! يميل محور الأرض بمقدار ٢٣٫٥ درجة تقريبًا، ويبقى متجهًا دائمًا نحو النجم القطبي. فيميل النصف الشمالي نحو الشمس في الصيف، فتصنع أشعتها زوايا أكبر وتكون أشد، ويميل بعيدًا عنها في الشتاء.'],['تغيّر المسافة بين الأرض والشمس',0,'تذكّر: الأرض أقرب إلى الشمس في يناير، وهو شتاء في النصف الشمالي.'],['دوران الأرض حول محورها',0,'دوران الأرض حول محورها يسبب الليل والنهار كل يوم. أما الفصول فتتغير خلال السنة.']]]};
+function r2(){const t=S.t,a=t.sum,b=t.win;S.done[1]=a&&b&&qd('a')&&qd('b')&&qd('c')&&qd('d')&&qd('e')?1:0;
+  $('#cin').innerHTML=head('دورة الأرض السنوية','الفصول الأربعة','تدور الأرض حول الشمس في مسار مغلق، وتستغرق دورتها ٣٦٥٫٢٥ يومًا تقريبًا. يميل محورها ٢٣٫٥ درجة تقريبًا، ويبقى متجهًا نحو النجم القطبي. حرّك الأرض في مدارها وراقب زاوية أشعة الشمس في الرياض.')+
+   slider('dy','حرّك الأرض في مدارها',1,365,1,S.day,dateOf(S.day))+`<div class="info2" id="s2i"></div>`+
+   chk([[a,!a,'حرّك الأرض حتى يحلّ الصيف في النصف الشمالي، حيث الرياض'],[b,a&&!b,'الآن حرّكها حتى يحلّ الشتاء في النصف الشمالي']])+
+   (a&&b?mcq('a',Q2.a)+(qd('a')?`<label class="tg"><input type="checkbox" id="noTilt" ${S.eps<.01?'checked':''}> 🧪 تجربة: أزل ميل محور الأرض</label>`+(t.notilt?mcq('b',Q2.b):'<p class="hint2">فعّل التجربة، ثم حرّك الأرض في مدارها من يونيو إلى ديسمبر.</p>'):'')+(qd('b')?mcq('c',Q2.c):'')+(qd('c')?mcq('d',Q2.d):'')+(qd('d')?mcq('e',Q2.e):''):'')+
+   (S.done[1]?'<button class="go" type="button" id="nx">التالي: أطوار القمر ←</button>':'')+`<p class="src">${SRC}</p>`;
+  bindSlider('dy',v=>{S.day=v;},()=>dateOf(S.day));bindQ(Q2,()=>{if(qd('b')&&S.eps<.01){S.eps=EPS;}});
+  const nt=$('#noTilt');if(nt)nt.onchange=()=>{S.eps=nt.checked?0:EPS;S.t.ntA=S.t.ntB=0;toast(nt.checked?'أُزيل ميل المحور. حرّك الأرض الآن في مدارها':'عاد المحور مائلًا ٢٣٫٥ درجة');};
+  const nx=$('#nx');if(nx)nx.onclick=()=>open(2);info2();}
+function info2(){const e=$('#s2i');if(!e)return;const al=noonAlt(),sh=1/Math.tan(al*D2R);
+  e.innerHTML=`<span><b>${season()}</b> في النصف الشمالي</span><span>زاوية أشعة الشمس ظهرًا في الرياض: <b>${ar(al)}°</b></span><span>طول ظل عصا طولها ١ م: <b>${ar(sh,2)} م</b></span>`;}
+function tick2(){const d=S.day;let ch=0;if(S.eps>.01){if(!S.t.sum&&d>=160&&d<=200){S.t.sum=1;ch=1;toast('صيف في النصف الشمالي: يميل نحو الشمس، فأشعتها أشد');}
+  else if(S.t.sum&&!S.t.win&&(d>=340||d<=15)){S.t.win=1;ch=1;toast('شتاء في النصف الشمالي: يميل بعيدًا عن الشمس');}}
+  else{if(d>=150&&d<=200)S.t.ntA=1;if(d>=330||d<=20)S.t.ntB=1;if(S.t.ntA&&S.t.ntB&&!S.t.notilt){S.t.notilt=1;ch=1;}}
+  info2();drawSun();if(ch)render();}
+function drawSun(){const c=$('#ins2'),on=S.st===1;c.hidden=!on;if(!on)return;const r=c.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);if(c.width!==Math.round(r.width*dpr)){c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);}
+  const g=c.getContext('2d'),w=r.width,h=r.height;g.setTransform(dpr,0,0,dpr,0,0);const al=noonAlt()*D2R;
+  const sky=g.createLinearGradient(0,0,0,h);sky.addColorStop(0,'#5EA7E8');sky.addColorStop(1,'#CFE6F7');g.fillStyle=sky;g.fillRect(0,0,w,h);
+  const gy=h*.78,sx=w*.5;g.fillStyle='#D9B77A';g.fillRect(0,gy,w,h-gy);
+  const L=h*.34,sl=L/Math.tan(al);g.fillStyle='rgba(60,40,20,.55)';g.fillRect(sx,gy-2,Math.min(w,sl),5);
+  g.strokeStyle='#5A3A1A';g.lineWidth=5;g.beginPath();g.moveTo(sx,gy);g.lineTo(sx,gy-L);g.stroke();
+  const sunX=sx-Math.cos(al)*h*.62,sunY=gy-Math.sin(al)*h*.62;g.strokeStyle='rgba(255,200,40,.85)';g.lineWidth=2;g.setLineDash([5,4]);g.beginPath();g.moveTo(sunX,sunY);g.lineTo(sx+sl,gy);g.stroke();g.setLineDash([]);
+  g.fillStyle='#FFD43B';g.beginPath();g.arc(Math.max(12,sunX),Math.max(12,sunY),11,0,7);g.fill();
+  g.strokeStyle='#fff';g.lineWidth=1.5;g.beginPath();g.arc(sx+sl,gy,24,Math.PI+0.0001,Math.PI+al,false);g.stroke();
+  g.fillStyle='#10233A';g.font='700 12px "IBM Plex Sans Arabic",system-ui';g.textAlign='center';g.direction='rtl';g.fillText('الرياض ظهرًا: الزاوية '+ar(noonAlt())+' درجة',w/2,16);g.fillText('الظل',sx+Math.min(sl,w-sx-20)/2+6,gy+18);}
+
+/* --- المحطة ٣ --- */
+const TG=[['المحاق','يقع القمر بين الأرض والشمس'],['الهلال الأول','بعد المحاق بأيام قليلة'],['التربيع الأول','بعد أن يكمل القمر ربع دورته حول الأرض'],['البدر','تقع الأرض بين القمر والشمس'],['التربيع الأخير','بعد أن يكمل القمر ثلاثة أرباع دورته']];
+const PD={'المحاق':'لا نرى القمر: الجهة المضاءة منه تواجه الشمس، والجهة المظلمة تواجهنا','الهلال الأول':'نرى جزءًا صغيرًا مضاءً على شكل هلال','التربيع الأول':'نرى نصف قرص القمر مضاءً','الأحدب الأول':'نرى أكثر من نصف القرص مضاءً، ولم يكتمل بعد','البدر':'نرى الجهة المضاءة من القمر كاملة','الأحدب الأخير':'يتناقص الجزء المضاء بعد البدر وما زال أكثر من النصف','التربيع الأخير':'نرى النصف الآخر من القرص مضاءً','الهلال الأخير':'يبقى جزء صغير مضاء قبل المحاق'};
+const Q3={a:['ما سبب حدوث أطوار القمر؟',[['يضيء نصف القمر دائمًا بضوء الشمس، ويتغير الجزء المضاء الذي نراه منه أثناء دورانه حول الأرض',1,'صحيح! القمر لا يضيء بنفسه، بل يعكس أشعة الشمس الساقطة عليه. يكون نصفه المواجه للشمس مضاءً دائمًا، ويتغير ما نراه من هذا النصف أثناء دورانه حول الأرض.'],['يغطي ظل الأرض جزءًا من القمر',0,'لاحظ في النموذج: في الهلال والتربيع لا يقع القمر في ظل الأرض أبدًا. ظل الأرض لا يقع على القمر إلا في الخسوف.'],['يضيء القمر بنفسه ويخفت ضوءه ثم يزداد',0,'القمر لا يضيء بنفسه؛ إنما يعكس أشعة الشمس الساقطة عليه.']]],
+ b:['ما المدة التي يستغرقها القمر ليكمل أطواره جميعها؟',[['نحو ٢٩٫٥ يومًا',1,'صحيح! الشهر القمري ٢٩٫٥ يومًا تقريبًا، وهو المستخدم في التقويم الهجري، ويُرصد الهلال لتحديد بداية الشهر.'],['يوم واحد',0,'في اليوم الواحد تدور الأرض حول محورها. حرّك القمر من المحاق إلى المحاق التالي وانظر إلى عدد الأيام.'],['٣٦٥ يومًا',0,'هذه مدة دورة الأرض حول الشمس. القمر يكمل أطواره أكثر من ١٢ مرة في السنة.']]]};
+function r3(){const i=S.t.pi||0;S.done[2]=i>=TG.length&&qd('a')&&qd('b')?1:0;
+  $('#cin').innerHTML=head('أطوار القمر','كيف يتغير شكل القمر؟','يدور القمر حول الأرض، ونصفه المواجه للشمس مضاء دائمًا. في النافذة الصغيرة ترى القمر كما يبدو من الأرض. حرّك القمر في مداره، ثم اضغط «تحقّق».')+
+   slider('mdy','اليوم في الشهر القمري',0,29.5,.25,S.md,'اليوم '+ar(Math.floor(S.md)+1))+
+   chk(TG.map(([n],k)=>[k<i,k===i,'اجعل القمر في طور <b>'+n+'</b>']))+(i<TG.length?'<button class="go" type="button" id="ck">تحقّق ✓</button><p class="fb" id="f3"></p>':'')+
+   (i>=TG.length?mcq('a',Q3.a)+(qd('a')?mcq('b',Q3.b):''):'')+(S.done[2]?'<button class="go" type="button" id="nx">التالي: الخسوف والكسوف ←</button>':'')+`<p class="src">${SRC}</p>`;
+  bindSlider('mdy',v=>{S.md=v;},()=>'اليوم '+ar(Math.floor(S.md)+1));bindQ(Q3);
+  const ck=$('#ck');if(ck)ck.onclick=()=>{const p=phase(),[n,hint]=TG[i];if(p===n){S.t.pi=i+1;render();say('f3',1,`صحيح: هذا طور «${n}». ${PD[n]}.`);}else say('f3',0,`هذا طور «${p}»: ${PD[p]}.<br>لترى <b>${n}</b>: ${hint}.`);};
+  const nx=$('#nx');if(nx)nx.onclick=()=>open(3);}
+
+/* --- المحطة ٤ --- */
+const Q4={a:['أصبح القمر بدرًا، ولم يحدث خسوف. لماذا؟',[['لأن مدار القمر يميل قليلًا عن مدار الأرض، فمرّ القمر فوق ظل الأرض أو تحته',1,'صحيح! يميل مدار القمر قليلًا عن مدار الأرض حول الشمس؛ لذلك يكون القمر عادةً فوق مدار الأرض أو تحته، ولا يحدث الخسوف في كل بدر.'],['لأن الخسوف يحدث في طور المحاق لا البدر',0,'في المحاق يكون القمر بين الأرض والشمس؛ وهذا موقع كسوف الشمس، لا خسوف القمر.'],['لأن الأرض لا تلقي ظلًا في الفضاء',0,'الأرض تلقي ظلًا خلفها في الجهة البعيدة عن الشمس. انظر إلى موقع القمر: هل دخل هذا الظل؟']]],
+ b:['ما ترتيب الأجرام الثلاثة عند حدوث كسوف الشمس؟',[['الشمس ثم القمر ثم الأرض؛ والقمر في طور المحاق',1,'صحيح! عندما تمر الأرض في ظل القمر يحدث كسوف الشمس، ولكي يكون كليًّا يجب أن يكون القمر بين الشمس وموقع الراصد على سطح الأرض.'],['الشمس ثم الأرض ثم القمر؛ والقمر بدر',0,'هذا ترتيب خسوف القمر: تقع الأرض بين الشمس والقمر فتحجب أشعة الشمس عنه.'],['القمر ثم الشمس ثم الأرض',0,'لو كانت الشمس بين القمر والأرض لما حجب القمر ضوءها عنا. أين كان القمر في نموذجك عند الكسوف؟']]]};
+function r4(){const t=S.t;S.done[3]=t.miss&&qd('a')&&t.lun&&t.sol&&qd('b')?1:0;const lab=t.miss?(qd('a')?(t.lun?(t.sol?'':'اصنع كسوفًا للشمس'):'اصنع خسوفًا للقمر'):''):'اجعل القمر بدرًا وراقب: هل يحدث خسوف؟';
+  $('#cin').innerHTML=head('الخسوف والكسوف','أصنع خسوفًا وكسوفًا','يحدث خسوف القمر عندما يقع القمر في ظل الأرض، ويحدث كسوف الشمس عندما تقع الأرض في ظل القمر. يميل مدار القمر قليلًا عن مدار الأرض حول الشمس.')+
+   slider('mdy','اليوم في الشهر القمري',0,29.5,.25,S.md,'اليوم '+ar(Math.floor(S.md)+1))+(t.miss&&qd('a')?slider2('dy2','موقع الأرض في مدارها حول الشمس',1,365,1,S.day,dateOf(S.day)):'')+
+   `<p class="pulse" id="ecs"></p>`+chk([[t.miss,!t.miss,'اجعل القمر بدرًا'],[t.lun,t.miss&&qd('a')&&!t.lun,'اصنع خسوفًا للقمر: حرّك الأرض في مدارها، ثم القمر'],[t.sol,t.lun&&!t.sol,'اصنع كسوفًا للشمس']])+
+   (t.miss?mcq('a',Q4.a):'')+(t.sol?mcq('b',Q4.b):'')+(S.done[3]?'<button class="go" type="button" id="nx">التالي: المد والجزر ←</button>':'')+`<p class="src">${SRC}</p>`;
+  bindSlider('mdy',v=>{S.md=v;},()=>'اليوم '+ar(Math.floor(S.md)+1));bindSlider('dy2',v=>{S.day=v;},()=>dateOf(S.day),1);bindQ(Q4);
+  const nx=$('#nx');if(nx)nx.onclick=()=>open(4);}
+function tick4(){const e=eclipse(),p=phase();let ch=0;const t=S.t;
+  if(!t.miss&&p==='البدر'&&!e){t.miss=1;ch=1;toast('بدر... لكن القمر مرّ فوق ظل الأرض أو تحته');}
+  if(t.miss&&qd('a')&&!t.lun&&e==='lunar'){t.lun=1;ch=1;toast('🌕 خسوف كلي للقمر! القمر داخل ظل الأرض');}
+  if(t.lun&&!t.sol&&e==='solar'){t.sol=1;ch=1;toast('🌑 كسوف للشمس! ظل القمر يسقط على الأرض. ⚠ لا تنظر إلى الشمس مباشرة');}
+  const m={lunar:'🌕 خسوف كلي للقمر: يقع القمر في ظل الأرض',plunar:'🌗 خسوف جزئي: يمر جزء من القمر في ظل الأرض',solar:'🌑 كسوف للشمس: يقع ظل القمر على الأرض',psolar:'كسوف جزئي: يحجب القمر جزءًا من قرص الشمس'}[e]||('طور القمر: '+p);
+  const el=$('#ecs');if(el)el.textContent=m;if(ch)render();}
+
+/* --- المحطة ٥ --- */
+const Q5={a:['ماذا يحدث نتيجة دوران الأرض حول محورها؟',[['تعاقب الليل والنهار',1,'صحيح! دورة الأرض اليومية حول محورها تجعل كل مكان يواجه الشمس ثم يبتعد عنها.'],['تعاقب الفصول الأربعة',0,'الفصول تحدث بسبب ميل المحور أثناء دوران الأرض حول الشمس خلال السنة.'],['حدوث أطوار القمر',0,'أطوار القمر تحدث بسبب دوران القمر حول الأرض.']]],
+ b:['في أي فصل تصنع أشعة الشمس ظهرًا زوايا أكبر مع سطح الأرض في الرياض؟',[['الصيف',1,'صحيح! في الصيف يميل النصف الشمالي نحو الشمس، فتصنع أشعتها زوايا أكبر، وتكون الظلال أقصر.'],['الشتاء',0,'في الشتاء يميل النصف الشمالي بعيدًا عن الشمس، فتكون الزاوية أصغر والظلال أطول.'],['الزاوية واحدة في الفصول كلها',0,'هذا ما رأيته فقط عندما أزلت ميل المحور في التجربة. والمحور مائل تتغير الزاوية.']]],
+ c:['في أي طور نرى الجهة المضاءة من القمر كاملة؟',[['البدر',1,'صحيح! في البدر تقع الأرض بين القمر والشمس، فنرى الجهة المضاءة من القمر كاملة.'],['المحاق',0,'في المحاق تواجهنا الجهة المظلمة من القمر فلا نراه.'],['التربيع الأول',0,'في التربيع الأول نرى نصف قرص القمر مضاءً فقط.']]],
+ d:['لماذا لا يحدث خسوف للقمر في كل شهر؟',[['لأن مدار القمر يميل قليلًا عن مدار الأرض حول الشمس',1,'صحيح! لا يحدث الخسوف إلا إذا كان القمر بدرًا وقريبًا من مستوى مدار الأرض في الوقت نفسه.'],['لأن القمر لا يصل إلى طور البدر كل شهر',0,'القمر يصل إلى البدر كل شهر قمري. الأمر يتعلق بموقعه فوق مدار الأرض أو تحته.'],['لأن ظل الأرض يختفي في بعض الشهور',0,'للأرض ظل دائمًا في الجهة البعيدة عن الشمس.']]],
+ e:['لماذا يجب ألّا ننظر إلى الشمس مباشرة، حتى أثناء الكسوف؟',[['لأن أشعة الشمس قوية، وقد تضر العين',1,'صحيح! أشعة الشمس قوية؛ لذا يجب ألّا يُنظر إليها مباشرة في الأوقات العادية أو خلال الكسوف الكلي.'],['لأن الشمس تختفي تمامًا أثناء الكسوف',0,'حتى عندما يحجب القمر قرص الشمس تبقى أشعتها الضارة، فلا تنظر إليها مباشرة أبدًا.'],['لا بأس بالنظر إليها أثناء الكسوف',0,'غير صحيح؛ الأشعة الضارة التي تصدرها الشمس أثناء الكسوف هي نفسها التي تصدرها عادةً.']]]};
+function r5(){const all=Object.keys(Q5).every(k=>qd('z'+k));if(all)S.done[7]=1;const QS={};Object.keys(Q5).forEach(k=>QS['z'+k]=Q5[k]);
+  const first=Object.keys(Q5).findIndex(k=>!qd('z'+k));const show=Object.keys(Q5).slice(0,first<0?Object.keys(Q5).length:first+1);
+  $('#cin').innerHTML=head('أختبر فهمي','ماذا تعلّمت؟','أجب عن الأسئلة. يمكنك تحريك النموذج لتتحقق قبل أن تجيب.')+`<div class="dots">${Object.keys(Q5).map((k,i)=>`<i class="${qd('z'+k)?'d':i===first?'c':''}"></i>`).join('')}</div>`+show.map(k=>mcq('z'+k,Q5[k])).join('')+
+   (all?`<p class="rule"><b>أستنتج</b>دوران الأرض حول محورها يسبب الليل والنهار، وميل محورها أثناء دورانها حول الشمس يسبب الفصول الأربعة. ودوران القمر حول الأرض يُظهر لنا أطواره، ويسبب جذبه المد والجزر، وحين تصطف الشمس والأرض والقمر يحدث الخسوف أو الكسوف. والجاذبية مع القصور الذاتي تُبقي الكواكب في مداراتها حول الشمس، والشمس نجم متوسط في أحد أذرع مجرة درب التبانة، وهي مجرة واحدة من نحو ١٠٠ مليار مجرة في الكون.</p><p class="info"><b>🎉 أنهيت نشاط الكون والنظام الشمسي</b>أحسنت!</p>`:'')+`<p class="src">${SRC}</p>`;
+  bindQ(QS);}
+
+/* ===== الإضافات: المد والجزر، النظام الشمسي، النجوم والمجرات ===== */
+/* --- الماء (المد والجزر) --- */
+const WR=ER*1.03,waterGeo=new T.SphereGeometry(WR,64,40),wBase=waterGeo.attributes.position.array.slice();
+const water=new T.Mesh(waterGeo,new T.MeshStandardMaterial({color:0x4f9dff,emissive:0x0b2a66,transparent:true,opacity:.55,roughness:.3,depthWrite:false}));earthPivot.add(water);
+const JED=loc(39.2,21.5);const pin2=new T.Mesh(new T.SphereGeometry(.06,16,12),new T.MeshBasicMaterial({color:0x22d3ee}));pin2.position.copy(JED.clone().normalize().multiplyScalar(ER*1.1));earth.add(pin2);
+const AM=.34,AS=.15;
+function tideH(n){const m=moon.position.clone().sub(earthPivot.position).normalize(),s=sunDir(),cm=n.dot(m),cs=n.dot(s);return AM*(1.5*cm*cm-.5)+AS*(1.5*cs*cs-.5);}
+function updWater(){const p=waterGeo.attributes.position,n=new T.Vector3();for(let i=0;i<p.count;i++){n.set(wBase[i*3],wBase[i*3+1],wBase[i*3+2]).normalize();const h=tideH(n);p.setXYZ(i,n.x*WR*(1+h*.9),n.y*WR*(1+h*.9),n.z*WR*(1+h*.9));}p.needsUpdate=true;waterGeo.computeVertexNormals();}
+const jedN=()=>pin2.getWorldPosition(new T.Vector3()).sub(earthPivot.position).normalize();
+
+/* --- النظام الشمسي --- */
+function bandTex(cols,seed,spot){const w=256,h=128,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),im=x.createImageData(w,h),d=im.data;
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const k=(j*w+i)*4,v=j/h,n=fbmS(i/w,v,4,3),b=(Math.sin(v*Math.PI*(seed||9)+n*3)+1)/2,ci=Math.min(cols.length-1,Math.floor(b*cols.length)),col=cols[ci];d[k]=col[0]*(.85+n*.3);d[k+1]=col[1]*(.85+n*.3);d[k+2]=col[2]*(.85+n*.3);d[k+3]=255;}
+  x.putImageData(im,0,0);if(spot){x.fillStyle='rgba(190,70,40,.85)';x.beginPath();x.ellipse(w*.62,h*.66,13,7,0,0,7);x.fill();}const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
+function rockTex(base,var1){const w=256,h=128,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d'),im=x.createImageData(w,h),d=im.data;
+  for(let j=0;j<h;j++)for(let i=0;i<w;i++){const k=(j*w+i)*4,n=fbmS(i/w,j/h,8,4);d[k]=base[0]+(n-.5)*var1;d[k+1]=base[1]+(n-.5)*var1;d[k+2]=base[2]+(n-.5)*var1;d[k+3]=255;}x.putImageData(im,0,0);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
+const PL=[
+ {n:'عطارد',k:'د',d:4880,dr:.38,dist:'٥٧٫٩ مليون كم',day:'٥٩ يومًا أرضيًّا',yr:'٨٨ يومًا أرضيًّا',P:88,R:4.6,f:'حرارة الجهة المواجهة للشمس نحو ٤٢٠°س، والجهة البعيدة عنها نحو −١٧٠°س، وسطحه مليء بالفوهات.',tex:()=>rockTex([150,140,130],120)},
+ {n:'الزهرة',k:'د',d:12100,dr:.95,dist:'١٠٨٫٢ مليون كم',day:'٢٤٣ يومًا أرضيًّا',yr:'٢٢٥ يومًا أرضيًّا',P:225,R:6.2,f:'لها غلاف جوي كثيف من ثاني أكسيد الكربون، وحرارة سطحها تصل إلى نحو ٥٠٠°س.',tex:()=>bandTex([[230,200,140],[215,180,120],[240,215,165]],5)},
+ {n:'الأرض',k:'د',d:12750,dr:1,dist:'١٤٩٫٦ مليون كم',day:'٢٣ ساعة و٥٦ دقيقة',yr:'٣٦٥٫٢٤ يومًا',P:365.24,R:7.9,f:'لها قمر واحد، ومتوسط حرارة غلافها الجوي نحو ١٥°س.',tex:null},
+ {n:'المريخ',k:'د',d:6800,dr:.53,dist:'٢٢٧٫٩ مليون كم',day:'٢٤ ساعة و٣٧ دقيقة',yr:'٦٨٧ يومًا أرضيًّا',P:687,R:9.6,f:'له قمران، وتظهر عليه الفصول، وغلافه الجوي رقيق من ثاني أكسيد الكربون.',tex:()=>rockTex([190,95,55],110)},
+ {n:'المشتري',k:'خ',d:143000,dr:11.2,dist:'٧٧٨٫٤ مليون كم',day:'٩ ساعات و٥٥ دقيقة',yr:'نحو ١٢ سنة أرضية',P:4331,R:14,f:'أكبر كواكب النظام الشمسي، ويتميز بالبقعة الحمراء العظيمة، وهي إعصار ضخم دام أكثر من ٣٠٠ عام.',tex:()=>bandTex([[200,170,130],[160,120,90],[225,205,175],[180,140,105]],14,1)},
+ {n:'زحل',k:'خ',d:120500,dr:9.5,dist:'١٫٤٣ بليون كم',day:'١٠ ساعات و٤٠ دقيقة',yr:'٢٩ سنة أرضية',P:10759,R:18.5,f:'يتميز بحلقاته الضخمة، وتكثر فيه العواصف الشديدة.',tex:()=>bandTex([[225,200,150],[205,180,130],[235,215,170]],11),ring:1},
+ {n:'أورانوس',k:'خ',d:51000,dr:4,dist:'٢٫٨٧ بليون كم',day:'١٧ ساعة و١٤ دقيقة',yr:'نحو ٨٤ سنة أرضية',P:30687,R:22.5,f:'غلافه الجوي من الهيدروجين والهيليوم وقليل من الميثان، مما يعطيه لونه الأزرق المخضر.',tex:()=>bandTex([[150,215,225],[140,205,220]],4)},
+ {n:'نبتون',k:'خ',d:49500,dr:3.9,dist:'٤٫٥ بلايين كم',day:'١٦ ساعة و٧ دقائق',yr:'نحو ١٦٥ سنة أرضية',P:60190,R:26,f:'لونه يشبه لون أورانوس، وتوجد عليه الرياح الأسرع بين كواكب النظام الشمسي.',tex:()=>bandTex([[70,110,220],[60,95,200],[90,130,230]],6)}];
+const solar=new T.Group();scene.add(solar);const pMesh=[];
+PL.forEach((p,i)=>{const r=.3*Math.pow(p.dr,.45);const m=new T.Mesh(new T.SphereGeometry(r,40,28),new T.MeshStandardMaterial({map:p.tex?p.tex():earth.material.map,roughness:.9}));m.userData.i=i;p.r=r;p.m=m;solar.add(m);pMesh.push(m);
+  if(p.ring){const rg=new T.Mesh(new T.RingGeometry(r*1.35,r*2.3,64),new T.MeshBasicMaterial({color:0xd9c79a,side:T.DoubleSide,transparent:true,opacity:.75}));rg.rotation.x=Math.PI/2.4;m.add(rg);}
+  const o=ring(p.R,0x7d8fb8,.35);solar.add(o);p.lb=lbl(p.n,()=>m.position.clone().add(new T.Vector3(0,r+.45,0)),'sm');});
+{const n=900,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const a=Math.random()*6.283,r=11.3+Math.random()*1.4;pos.set([Math.cos(a)*r,(Math.random()-.5)*.35,Math.sin(a)*r],i*3);}const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(pos,3));
+  const belt=new T.Points(g,new T.PointsMaterial({color:0xa89a88,size:.06}));solar.add(belt);}
+const L2={belt:lbl('حزام الكويكبات',()=>new T.Vector3(0,.5,-12),'sm')};
+const pAng=i=>(2*Math.PI*S.sd/PL[i].P)+i*.9;
+function placeSolar(){PL.forEach((p,i)=>{if(i===2&&S.gx)return;const a=pAng(i);p.m.position.set(p.R*Math.cos(a),0,-p.R*Math.sin(a));p.m.rotation.y+=.01;});}
+
+/* --- النجوم والمجرة والكون --- */
+const cosmos=new T.Group();scene.add(cosmos);
+const starRow=new T.Group();cosmos.add(starRow);
+const STARS=[['قزم أبيض',.22,0xeef3ff,-8.5],['الشمس',.6,0xffd75e,-6.2],['عملاق أحمر',1.5,0xff6a3d,-3],['عملاق أزرق',1.9,0xa9c6ff,1.6],['فوق عملاق أحمر',3,0xff4a2a,7.6]];
+STARS.forEach(([n,r,c,x])=>{const m=new T.Mesh(new T.SphereGeometry(r,40,28),new T.MeshBasicMaterial({color:c}));m.position.set(x,0,0);starRow.add(m);const g=new T.Sprite(new T.SpriteMaterial({map:glow.material.map,color:c,blending:T.AdditiveBlending,transparent:true,depthWrite:false}));g.scale.set(r*4.2,r*4.2,1);m.add(g);
+  lbl(n,()=>starRow.localToWorld(new T.Vector3(x,-r-.6,0)),'sm').grp='stars';});
+const demo=new T.Mesh(new T.SphereGeometry(.85,40,28),new T.MeshBasicMaterial({color:0xffd75e}));demo.position.set(0,4.4,0);starRow.add(demo);const demoG=new T.Sprite(new T.SpriteMaterial({map:glow.material.map,color:0xffd75e,blending:T.AdditiveBlending,transparent:true,depthWrite:false}));demoG.scale.set(4,4,1);demo.add(demoG);
+lbl('نجم تجريبي',()=>starRow.localToWorld(new T.Vector3(0,5.75,0)),'sm').grp='stars';
+const SCOL=[[0,'أحمر',0xff5533],[.25,'برتقالي',0xff9a3c],[.5,'أصفر',0xffe066],[.75,'أبيض',0xf5f7ff],[1,'أبيض مزرق',0xa9c8ff]];
+function starCol(t){let i=0;while(i<SCOL.length-2&&t>SCOL[i+1][0])i++;const a=SCOL[i],b=SCOL[i+1],u=(t-a[0])/(b[0]-a[0]);return [new T.Color(a[2]).lerp(new T.Color(b[2]),u),u<.5?a[1]:b[1]];}
+const galaxy=new T.Group();cosmos.add(galaxy);
+{const n=9000,pos=new Float32Array(n*3),col=new Float32Array(n*3);for(let i=0;i<n;i++){const arm=i%2,r=Math.pow(Math.random(),.7)*22,a=arm*Math.PI+r*.42+(Math.random()-.5)*(.9-r/40),bul=r<4;
+    const x=Math.cos(a)*r+(Math.random()-.5)*1.2,z=Math.sin(a)*r+(Math.random()-.5)*1.2,y=(Math.random()-.5)*(bul?2.2:.5);pos.set([x,y,z],i*3);const c=bul?[1,.86,.6]:Math.random()<.2?[1,.7,.6]:[.75,.85,1];col.set(c.map(v=>v*(.6+Math.random()*.4)),i*3);}
+  const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(pos,3));g.setAttribute('color',new T.BufferAttribute(col,3));galaxy.add(new T.Points(g,new T.PointsMaterial({size:.12,vertexColors:true,transparent:true,opacity:.95,blending:T.AdditiveBlending,depthWrite:false})));
+  const core=new T.Sprite(new T.SpriteMaterial({map:glow.material.map,color:0xffe2a8,blending:T.AdditiveBlending,transparent:true,depthWrite:false}));core.scale.set(16,16,1);galaxy.add(core);}
+const ssA=13*.42,ssPos=new T.Vector3(Math.cos(ssA)*13,0,Math.sin(ssA)*13);const here=new T.Sprite(new T.SpriteMaterial({map:glow.material.map,color:0x7dfc9b,blending:T.AdditiveBlending,transparent:true,depthWrite:false}));here.scale.set(2.4,2.4,1);here.position.copy(ssPos);galaxy.add(here);
+lbl('المجموعة الشمسية هنا',()=>galaxy.localToWorld(ssPos.clone().add(new T.Vector3(0,1.3,0))),'pinl').grp='galaxy';lbl('مركز المجرة',()=>galaxy.localToWorld(new T.Vector3(0,2.2,0)),'sm').grp='galaxy';
+function galTex(kind){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');x.translate(64,64);
+  if(kind===0){for(let i=0;i<500;i++){const r=Math.pow(Math.random(),.8)*58,a=(i%2)*Math.PI+r*.12+(Math.random()-.5)*.5;x.fillStyle=`rgba(${200+Math.random()*55},${200+Math.random()*55},255,${.5*Math.random()+.2})`;x.fillRect(Math.cos(a)*r,Math.sin(a)*r*.45,1.6,1.6);}}
+  else{const g=x.createRadialGradient(0,0,2,0,0,kind===1?50:40);g.addColorStop(0,'rgba(255,235,200,.95)');g.addColorStop(1,'rgba(255,200,150,0)');x.fillStyle=g;x.scale(1,kind===1?.65:1);x.beginPath();x.arc(0,0,50,0,7);x.fill();}
+  const g2=x.createRadialGradient(0,0,0,0,0,12);g2.addColorStop(0,'rgba(255,240,210,1)');g2.addColorStop(1,'rgba(255,240,210,0)');x.fillStyle=g2;x.beginPath();x.arc(0,0,12,0,7);x.fill();const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t;}
+const universe=new T.Group();cosmos.add(universe);{const tx=[galTex(0),galTex(1),galTex(2)];for(let i=0;i<260;i++){const s=new T.Sprite(new T.SpriteMaterial({map:tx[i%3],transparent:true,depthWrite:false,blending:T.AdditiveBlending,rotation:Math.random()*6}));
+  const r=30+Math.random()*230,a=Math.random()*6.283,u=Math.random()*2-1;s.position.set(Math.cos(a)*r*Math.sqrt(1-u*u),u*r*.6,Math.sin(a)*r*Math.sqrt(1-u*u));const sc=3+Math.random()*7;s.scale.set(sc,sc,1);universe.add(s);}
+  const mw=new T.Sprite(new T.SpriteMaterial({map:tx[0],transparent:true,depthWrite:false,blending:T.AdditiveBlending}));mw.scale.set(14,14,1);universe.add(mw);}
+lbl('مجرتنا: درب التبانة',()=>universe.localToWorld(new T.Vector3(0,7,0)),'pinl').grp='universe';
+
+/* --- المحطة ٢: أسئلة إضافية --- */
+Q2.d=['ما أهمية حرارة الشمس وضوئها للحياة على الأرض؟',[['تدفئ الأرض، وتستخدم النباتات ضوءها في عملية البناء الضوئي لصنع الغذاء',1,'صحيح! الشمس مصدر الضوء والحرارة على الأرض: تدفئ الهواء والماء واليابسة، وتستخدم النباتات ضوءها في البناء الضوئي فتصنع الغذاء الذي تعتمد عليه المخلوقات الحية الأخرى.'],['فائدتها الوحيدة أنها تضيء النهار',0,'الضوء جزء من أهميتها فقط. فكّر: ماذا يحدث للنباتات بدون ضوء الشمس؟ وكيف ستكون درجة حرارة الأرض؟'],['لا تؤثر حرارة الشمس في المخلوقات الحية',0,'حرارة الشمس تدفئ الأرض وتجعل الحياة ممكنة عليها. لاحظ كيف تتغير شدة أشعتها بين الصيف والشتاء.']]];
+Q2.e=['لماذا يكون الطقس في الرياض أشد حرارة في الصيف منه في الشتاء؟',[['لأن أشعة الشمس تسقط بزاوية أكبر فتكون أشد، ويطول النهار',1,'صحيح! في الصيف يميل النصف الشمالي نحو الشمس، فتسقط أشعتها بزاوية أكبر وتتركز في مساحة أصغر فتسخّنها أكثر، ويطول النهار. لذلك يختلف الطقس بين الفصول.'],['لأن الأرض تكون أقرب إلى الشمس في الصيف',0,'تذكّر سؤالك السابق: الأرض أقرب إلى الشمس في يناير، وهو شتاء في الرياض.'],['لأن الشمس تكون أكبر حجمًا في الصيف',0,'حجم الشمس لا يتغير. الذي يتغير هو زاوية سقوط أشعتها على الرياض؛ راقب الزاوية في النافذة الصغيرة.']]];
+
+/* --- المحطة ٥: المد والجزر --- */
+const QT={a:['ما سبب حدوث المد والجزر؟',[['قوة التجاذب بين الأرض والقمر، ويؤثر فيها أيضًا جذب الشمس',1,'صحيح! يحدث المد والجزر بسبب التجاذب بين الأرض والقمر. فالقمر يجذب ماء البحر في الجهة المواجهة له، ويحدث انتفاخ آخر للماء في الجهة المقابلة من الأرض.'],['الرياح التي تهب على البحر',0,'الرياح تصنع الأمواج، لكن المد والجزر يتكرر في أوقات منتظمة. حرّك القمر في النموذج وراقب: لماذا يتحرك انتفاخ الماء معه؟'],['دوران الأرض حول الشمس',0,'دوران الأرض حول الشمس يستغرق سنة، والمد والجزر يتكرر مرتين في اليوم. راقب الماء: نحو أي جرم ينتفخ؟']]],
+ b:['متى يحدث المد العالي؟',[['عندما تصطف الشمس والأرض والقمر على استقامة واحدة في طوري البدر والمحاق',1,'صحيح! عندما تصطف الشمس والأرض والقمر يصطف جذب القمر وجذب الشمس معًا، فيكون المد أعلى من المعتاد والجزر أكثر انخفاضًا.'],['في طوري التربيع الأول والتربيع الأخير',0,'في التربيعين يكون جذب الشمس متعامدًا مع جذب القمر، فيضعف أحدهما الآخر ويحدث المد المنخفض. جرّب ذلك في النموذج.'],['في كل الأطوار بالدرجة نفسها',0,'راقب انتفاخ الماء وأنت تحرّك القمر: هل يبقى بالحجم نفسه في البدر والتربيع؟']]]};
+function rT(){const t=S.t;const ok=t.th&&t.tl&&t.sp&&t.np;S.done[4]=ok&&qd('a')&&qd('b')?1:0;
+  $('#cin').innerHTML=head('المد والجزر','لماذا يرتفع ماء البحر وينخفض؟','تتقدم مياه البحر في أوقات معينة وتغطي مناطق أعلى من اليابسة، وتنحسر عنها في أوقات أخرى. الطبقة الزرقاء في النموذج تمثل ماء البحار، وارتفاعها مُبالغ فيه للتوضيح. راقب شاطئ جدة 🔵.')+
+   slider('hr','أدِر الأرض حول محورها',0,24,.25,S.hour,fmtH(S.hour))+`<div class="info2" id="tdi"></div>`+
+   chk([[t.th,!t.th,'أدِر الأرض حتى يحدث <b>مد</b> عند شاطئ جدة'],[t.tl,t.th&&!t.tl,'الآن أدِرها حتى يحدث <b>جزر</b> عند جدة']])+
+   (t.th&&t.tl?slider2('mdy','حرّك القمر في مداره',0,29.5,.25,S.md,'اليوم '+ar(Math.floor(S.md)+1))+chk([[t.sp,!t.sp,'اجعل المد <b>أعلى ما يمكن</b> (المد العالي)'],[t.np,t.sp&&!t.np,'اجعل المد <b>أقل ما يمكن</b> (المد المنخفض)']])+(t.sp&&t.np?'':'<button class="go" type="button" id="ck">تحقّق ✓</button><p class="fb" id="f4"></p>'):'')+
+   (ok?mcq('a',QT.a)+(qd('a')?mcq('b',QT.b):''):'')+(S.done[4]?'<button class="go" type="button" id="nx">التالي: النظام الشمسي ←</button>':'')+`<p class="src">${SRC}</p>`;
+  bindSlider('hr',v=>{S.hour=v;},()=>fmtH(S.hour));bindSlider('mdy',v=>{S.md=v;},()=>'اليوم '+ar(Math.floor(S.md)+1),1);bindQ(QT);
+  const ck=$('#ck');if(ck)ck.onclick=()=>{const e=elong(),sp=Math.min(e,360-e)<18||Math.abs(e-180)<18,np=Math.abs(e-90)<18||Math.abs(e-270)<18,p=phase();
+    if(!t.sp){if(sp){t.sp=1;render();say('f4',1,'صحيح! في طور «'+p+'» تصطف الشمس والأرض والقمر، فيجتمع جذب القمر وجذب الشمس، ويكون المد عاليًا.');}else say('f4',0,'القمر الآن في طور «'+p+'». المد العالي يحدث عندما تصطف الشمس والأرض والقمر على استقامة واحدة.');}
+    else{if(np){t.np=1;render();say('f4',1,'صحيح! في طور «'+p+'» يكون جذب الشمس متعامدًا مع جذب القمر، فيكون المد منخفضًا.');}else say('f4',0,'القمر الآن في طور «'+p+'». المد المنخفض يحدث عندما يكون القمر في التربيع: ربع دورته أو ثلاثة أرباعها.');}};
+  const nx=$('#nx');if(nx)nx.onclick=()=>open(5);}
+function tickT(){updWater();const h=tideH(jedN()),e=$('#tdi');let ch=0;if(!S.t.th&&h>AM*.55){S.t.th=1;ch=1;toast('مد عند جدة: الشاطئ في الجهة المواجهة للقمر أو المقابلة لها');}else if(S.t.th&&!S.t.tl&&h<-AM*.3){S.t.tl=1;ch=1;toast('جزر عند جدة: انحسر الماء عن الشاطئ');}
+  if(e){const pct=Math.round((h+AM*.5+AS*.5)/(AM*1.5+AS*1.5)*100);e.innerHTML=`<span>مستوى الماء عند شاطئ جدة: <b>${h>AM*.25?'مد 🌊':h<-AM*.15?'جزر':'متوسط'}</b></span><span class="bar"><i style="width:${Math.max(4,Math.min(100,pct))}%"></i></span><span>طور القمر: <b>${phase()}</b></span>`;}if(ch)render();}
+
+/* --- المحطة ٦: النظام الشمسي --- */
+const QS6={a:['أيّ الكواكب يكمل دورته حول الشمس في أقصر مدة؟ ولماذا؟',[['عطارد؛ لأنه الأقرب إلى الشمس، فقوة جذبها له أكبر ومداره أقصر',1,'صحيح! كلما زاد بُعد الكوكب عن الشمس قلّت قوة جذبها له، وطال مداره؛ لذلك يدور عطارد بسرعة ويكمل سنته في ٨٨ يومًا، بينما يحتاج نبتون نحو ١٦٥ سنة.'],['المشتري؛ لأنه أكبر الكواكب حجمًا',0,'المشتري أكبر الكواكب، لكن سنته نحو ١٢ سنة أرضية. شغّل الحركة وراقب: أي كوكب يلف أسرع؟'],['نبتون؛ لأنه أبعد الكواكب عن الشمس',0,'نبتون أبطأ الكواكب؛ يحتاج نحو ١٦٥ سنة ليكمل دورة واحدة، لأن جذب الشمس له أضعف ومداره أطول.']]],
+ b:['ما الذي يُبقي الأرض في مدارها حول الشمس؟',[['الجاذبية والقصور الذاتي معًا',1,'صحيح! تسحب جاذبية الشمس الأرضَ نحوها، ويحاول القصور الذاتي إبقاءها متحركة في خط مستقيم، فيسير الكوكب في مسار منحنٍ حول الشمس.'],['الجاذبية وحدها',0,'جرّب «أوقف حركة الأرض»: بالجاذبية وحدها تسقط الأرض نحو الشمس.'],['القصور الذاتي وحده',0,'جرّب «أوقف جاذبية الشمس»: بالقصور الذاتي وحده تبتعد الأرض في خط مستقيم.']]],
+ c:['اعتقد الفلكيون القدماء أن الأرض مركز الكون. ما التفسير الذي يقبله العلماء اليوم؟',[['الأرض والقمر والكواكب الأخرى كلها تدور حول الشمس',1,'صحيح! هذا التفسير يفسّر حركة الكواكب بصورة أفضل، والقمر يدور حول الأرض، والأرض مع الكواكب الأخرى تدور حول الشمس.'],['الشمس والكواكب تدور حول الأرض',0,'هذا هو التفسير القديم، وقد تبيّن أنه لا يفسّر حركة الكواكب. انظر إلى النموذج: حول أي جرم تدور الكواكب كلها؟'],['كل كوكب يدور حول نفسه فقط ولا يتحرك في مدار',0,'شغّل الحركة في النموذج: الكواكب تتحرك في مدارات حول الشمس.']]]};
+const ORD=[0,1,2,3,4,5,6,7];
+function rS(){const t=S.t,seen=(t.seen||[]).length,oi=t.oi||0;S.done[5]=seen>=4&&oi>=8&&qd('a')&&t.g1&&t.g2&&qd('b')&&qd('c')?1:0;const sel=S.pick!=null?PL[S.pick]:null;
+  $('#cin').innerHTML=head('النظام الشمسي','الشمس وكواكبها','يتكوّن النظام الشمسي من نجم هو الشمس، وكواكب وأقمار وأجرام أخرى تدور كلها حول الشمس. اضغط على أي كوكب لتعرف خصائصه. الأحجام والمسافات ليست بمقياس رسم حقيقي.')+
+   (sel?`<p class="info"><b>${sel.n} · ${sel.k==='د'?'كوكب داخلي':'كوكب خارجي'}</b>القطر: ${ar(sel.d)} كم · البعد عن الشمس: ${sel.dist}<br>طول اليوم: ${sel.day} · طول السنة: ${sel.yr}<br>${sel.f}</p>`:'')+
+   chk([[seen>=4,seen<4,`تعرّف أربعة كواكب على الأقل (${ar(Math.min(seen,4))}/٤)`],[oi>=8,seen>=4&&oi<8,`رتّب الكواكب: اضغط عليها من الأقرب إلى الشمس إلى الأبعد (${ar(oi)}/٨)`]])+`<p class="fb" id="f5"></p>`+
+   (oi>=8?`<div class="sl"><label>شغّل حركة الكواكب وراقب سرعتها</label><div class="row1"><button type="button" class="play" id="pl" aria-label="تشغيل الحركة">${S.play?'⏸':'▶'}</button><output id="sdo" style="flex:1">${ar(Math.floor(S.sd/365.24))} سنة أرضية</output></div></div>`+mcq('a',QS6.a):'')+
+   (qd('a')?`<p class="step">🧪 تجربة الجاذبية والقصور الذاتي على الأرض</p><div class="opts"><button class="opt" type="button" id="g1">🧲 أوقف جاذبية الشمس</button><button class="opt" type="button" id="g2">⏹ أوقف حركة الأرض في مدارها</button><button class="tb" type="button" id="g0">↺ أعد الأرض إلى مدارها</button></div>`+chk([[t.g1,!t.g1,'جرّب إيقاف جاذبية الشمس'],[t.g2,t.g1&&!t.g2,'جرّب إيقاف حركة الأرض']])+(t.g1&&t.g2?mcq('b',QS6.b):''):'')+
+   (qd('b')?mcq('c',QS6.c):'')+(S.done[5]?'<button class="go" type="button" id="nx">التالي: النجوم والمجرات ←</button>':'')+`<p class="src">${SRC6}</p>`;
+  const pb=$('#pl');if(pb)pb.onclick=()=>{S.play=!S.play;pb.textContent=S.play?'⏸':'▶';};bindQ(QS6);
+  const g=(k,msg)=>{S.gx={k,t0:performance.now(),p:PL[2].m.position.clone(),a:pAng(2)};S.t[k==='nograv'?'g1':'g2']=1;toast(msg);setTimeout(render,50);};
+  const b1=$('#g1');if(b1)b1.onclick=()=>g('nograv','بدون جاذبية الشمس: يعمل القصور الذاتي وحده، فتتحرك الأرض في خط مستقيم مبتعدة عن مدارها');
+  const b2=$('#g2');if(b2)b2.onclick=()=>g('noiner','بدون حركة الأرض: تعمل الجاذبية وحدها، فتسحب الأرض نحو الشمس');
+  const b0=$('#g0');if(b0)b0.onclick=()=>{S.gx=null;};const nx=$('#nx');if(nx)nx.onclick=()=>open(6);}
+function pickPlanet(i){const t=S.t;t.seen=t.seen||[];if(!t.seen.includes(i))t.seen.push(i);S.pick=i;const oi=t.oi||0;
+  if(t.seen.length>=4&&oi<8){if(i===ORD[oi]){t.oi=oi+1;render();say('f5',1,`${ar(oi+1)}. ${PL[i].n}${oi+1<8?'. ما الكوكب التالي بعدًا عن الشمس؟':'. أحسنت! رتّبت الكواكب الثمانية.'}`);}
+    else{render();const want=PL[ORD[oi]];say('f5',0,`هذا ${PL[i].n}، وبعده عن الشمس ${PL[i].dist}. الكوكب ${ar(oi+1)} في الترتيب ${PL[i].R>want.R?'أقرب إلى الشمس منه':'أبعد عن الشمس منه'}.`);}}
+  else render();}
+function tickS(dt){if(S.play)S.sd+=dt*60;placeSolar();const o=$('#sdo');if(o)o.textContent=ar(Math.floor(S.sd/365.24))+' سنة أرضية';
+  if(S.gx){const m=PL[2].m,el=(performance.now()-S.gx.t0)/1000,a=S.gx.a;if(S.gx.k==='nograv'){const v=new T.Vector3(-Math.sin(a),0,-Math.cos(a)).multiplyScalar(2.6);m.position.copy(S.gx.p).add(v.multiplyScalar(el));}
+    else{const d=Math.max(SUNR+.2,PL[2].R-1.6*el*el);m.position.set(d*Math.cos(a),0,-d*Math.sin(a));}}}
+const ray=new T.Raycaster(),mv=new T.Vector2();let downXY=null;
+cv.addEventListener('pointerdown',e=>{downXY=[e.clientX,e.clientY];});
+cv.addEventListener('pointerup',e=>{if(!downXY||S.st!==5)return;if(Math.hypot(e.clientX-downXY[0],e.clientY-downXY[1])>6)return;mv.set(e.clientX/W*2-1,-(e.clientY/H)*2+1);ray.setFromCamera(mv,cam);
+  let hit=ray.intersectObjects(pMesh,false)[0];if(!hit){let best=null,bd=28;pMesh.forEach(m=>{const p=m.position.clone().project(cam),dx=(p.x*.5+.5)*W-e.clientX,dy=(-p.y*.5+.5)*H-e.clientY,d=Math.hypot(dx,dy);if(d<bd){bd=d;best=m;}});if(best)hit={object:best};}
+  if(hit)pickPlanet(hit.object.userData.i);});
+
+/* --- المحطة ٧: النجوم والمجرات والكون --- */
+const QG={a:['كيف تقارن الشمس بالنجوم الأخرى؟',[['نجم متوسط الحجم، لونه أصفر',1,'صحيح! الشمس نجم متوسط الحجم؛ فهناك نجوم أكبر منها كثيرًا مثل العمالقة الحمراء، ونجوم أصغر منها مثل الأقزام البيضاء. وحرارة سطحها تصل إلى نحو ٦٠٠٠°س.'],['أكبر نجم في الكون',0,'انظر إلى صف النجوم: العملاق الأحمر والعملاق الأزرق وفوق العملاق الأحمر أكبر من الشمس كثيرًا.'],['أصغر نجم في الكون',0,'القزم الأبيض أصغر من الشمس كثيرًا، وقد يقارب حجمه حجم الأرض.']]],
+ b:['أين تقع المجموعة الشمسية في مجرة درب التبانة؟',[['في أحد الأذرع اللولبية للمجرة',1,'صحيح! درب التبانة مجرة لولبية الشكل، تدور النجوم فيها حول مركز المجرة، ويقع نظامنا الشمسي في أحد أذرعها اللولبية.'],['في مركز المجرة',0,'انظر إلى العلامة الخضراء في النموذج: هل هي في المركز؟ ولا يمكننا رؤية مركز مجرتنا بوضوح بسبب الغبار الواقع بيننا وبينه.'],['خارج المجرة',0,'الشمس نجم من نجوم مجرتنا، فالمجموعة الشمسية داخل درب التبانة.']]],
+ c:['رتّب من الأصغر إلى الأكبر:',[['المجموعة الشمسية ← مجرة درب التبانة ← الكون',1,'صحيح! المجموعة الشمسية جزء صغير من مجرة درب التبانة، والمجرة واحدة من مجرات كثيرة جدًّا في الكون.'],['مجرة درب التبانة ← المجموعة الشمسية ← الكون',0,'المجموعة الشمسية تقع داخل المجرة، في أحد أذرعها؛ فأيهما الأكبر؟'],['الكون ← مجرة درب التبانة ← المجموعة الشمسية',0,'هذا الترتيب من الأكبر إلى الأصغر. المطلوب من الأصغر إلى الأكبر.']]],
+ d:['ما الذي يدل على اتساع الكون الهائل؟',[['في مجرتنا وحدها نحو ٢٠٠ مليار نجم، وفي الكون نحو ١٠٠ مليار مجرة، والكون يتوسع باستمرار',1,'صحيح! يقدّر علماء الفلك عدد النجوم في مجرتنا بنحو ٢٠٠ مليار نجم، وفي الكون حوالي ١٠٠ مليار مجرة، وتشير الأدلة إلى أن الكون يتوسع باستمرار.'],['أن الشمس تبدو كبيرة في السماء',0,'تبدو الشمس كبيرة لأنها أقرب نجم إلينا، لا لأن الكون صغير أو كبير.'],['أننا نستطيع رؤية النجوم كلها بأعيننا',0,'لا نرى بأعيننا إلا جزءًا صغيرًا جدًّا من نجوم مجرتنا، فضلًا عن المجرات الأخرى.']]]};
+const CORD=['أحمر','برتقالي','أصفر','أبيض','أبيض مزرق'],CSW={'أحمر':'#ff5533','برتقالي':'#ff9a3c','أصفر':'#ffe066','أبيض':'#f5f7ff','أبيض مزرق':'#a9c8ff'};
+function rG(){const t=S.t,ci=t.ci||0,mode=S.cm;S.done[6]=ci>=5&&qd('a')&&qd('b')&&qd('c')&&qd('d')?1:0;
+  const tabs=`<div class="seg2">${[['stars','⭐ النجوم'],['galaxy','🌀 المجرة'],['universe','🌌 الكون']].map(([k,n],i)=>`<button type="button" data-cm="${k}" class="${mode===k?'on':''}" ${i===1&&!qd('a')||i===2&&!qd('b')?'disabled':''}>${n}</button>`).join('')}</div>`;
+  let body='';
+  if(mode==='stars'){const shuffled=['أبيض','أحمر','أبيض مزرق','أصفر','برتقالي'];
+    body=`<div class="sl"><label for="tmp">غيّر درجة حرارة سطح النجم التجريبي</label><div class="row1"><span class="sm2">أقل حرارة</span><input type="range" id="tmp" min="0" max="1" step=".01" value="${S.tmp}"><span class="sm2">أكثر حرارة</span></div><output id="tmpo" class="cc"></output></div>`+
+     `<p class="step">رتّب ألوان النجوم من <b>الأقل حرارة</b> إلى <b>الأكثر حرارة</b> (${ar(ci)}/٥):</p><div class="chips">${shuffled.map(c=>`<button type="button" class="obtn ${CORD.indexOf(c)<ci?'got':''}" data-c="${c}" ${CORD.indexOf(c)<ci?'disabled':''}><i class="sw" style="background:${CSW[c]}"></i>${c}</button>`).join('')}</div><p class="fb" id="f6"></p>`+(ci>=5?mcq('a',QG.a):'');}
+  else if(mode==='galaxy')body=`<p class="info"><b>مجرة درب التبانة</b>المجرة مجموعة كبيرة جدًّا من النجوم ترتبط معًا بالجاذبية، وتتحرك النجوم حول مركز المجرة تمامًا كما تدور الكواكب حول الشمس. ودرب التبانة مجرة لولبية الشكل.</p>`+mcq('b',QG.b);
+  else body=`<p class="info"><b>الكون</b>كل نقطة مضيئة هنا مجرة كاملة، فيها مليارات النجوم. والمجرات ثلاثة أنماط حسب شكلها: لولبية، وإهليلجية، وغير منتظمة.</p>`+mcq('c',QG.c)+(qd('c')?mcq('d',QG.d):'');
+  $('#cin').innerHTML=head('النجوم والمجرات','من الشمس إلى الكون','الشمس نجم من نجوم مجرة درب التبانة، والمجرة واحدة من مجرات كثيرة في الكون. انتقل بين الأقسام الثلاثة.')+tabs+body+
+   (S.done[6]?'<button class="go" type="button" id="nx">التالي: أختبر فهمي ←</button>':(mode==='stars'&&qd('a')?'<button class="go" type="button" data-go="galaxy">ابتعد إلى المجرة ←</button>':mode==='galaxy'&&qd('b')?'<button class="go" type="button" data-go="universe">ابتعد إلى الكون ←</button>':''))+`<p class="src">${SRC6}</p>`;
+  bindQ(QG);$('#cin').querySelectorAll('[data-cm],[data-go]').forEach(b=>b.onclick=()=>{S.cm=b.dataset.cm||b.dataset.go;C.user=0;C.zf=1;render();});
+  const tp=$('#tmp');if(tp){const up=()=>{S.tmp=+tp.value;const [c,n]=starCol(S.tmp);demo.material.color.copy(c);demoG.material.color.copy(c);$('#tmpo').textContent='لون النجم: '+n;};tp.oninput=up;up();}
+  $('#cin').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const c=b.dataset.c,want=CORD[ci];if(c===want){t.ci=ci+1;render();say('f6',1,ci+1<5?`صحيح: ${c}. ما اللون التالي الأكثر حرارة؟`:'أحسنت! الأحمر والبرتقالي يدلان على النجوم الأقل حرارة، والأصفر أسخن، أما الأبيض المزرق فيدل على النجوم الأكثر سخونة؛ كما يتوهج الملف الفلزي في المدفأة بالأحمر ثم البرتقالي ثم الأصفر كلما سخن.');}
+    else say('f6',0,ci===0?`«${c}» ليس اللون الأقل حرارة. حرّك شريط الحرارة إلى «أقل حرارة» وراقب لون النجم التجريبي.`:`«${c}» ${CORD.indexOf(c)>ci?'أكثر حرارة من اللون الذي نبحث عنه':'سبق ترتيبه'}. حرّك شريط الحرارة قليلًا نحو «أكثر حرارة» بعد اللون «${CORD[ci-1]}»، وراقب اللون الذي يظهر.`);});
+  const nx=$('#nx');if(nx)nx.onclick=()=>open(7);}
+
+Q5.f=['ما سبب حدوث المد والجزر؟',[['قوة التجاذب بين الأرض والقمر',1,'صحيح! يجذب القمر ماء البحر في الجهة المواجهة له، فيرتفع الماء هناك وفي الجهة المقابلة من الأرض.'],['الرياح القوية',0,'الرياح تصنع الأمواج، أما المد والجزر فيتكرر في أوقات منتظمة بسبب جذب القمر.'],['حرارة الشمس',0,'حرارة الشمس تسبب تغيرات الطقس، أما المد والجزر فسببه التجاذب بين الأرض والقمر.']]];
+Q5.g=['ماذا يحدث للأرض لو اختفت جاذبية الشمس فجأة؟',[['تتحرك في خط مستقيم مبتعدة عن مدارها بسبب القصور الذاتي',1,'صحيح! القصور الذاتي يُبقي الجسم المتحرك متحركًا في خط مستقيم، والجاذبية هي التي تحني مساره حول الشمس.'],['تسقط نحو الشمس',0,'هذا ما يحدث لو توقفت حركة الأرض وبقيت الجاذبية وحدها.'],['تبقى في مدارها كما هي',0,'بدون جاذبية الشمس لا شيء يحني مسار الأرض؛ تذكّر التجربة في محطة النظام الشمسي.']]];
+Q5.h=['نجمان: أحدهما أحمر، والآخر أبيض مزرق. أيهما أكثر حرارة؟',[['الأبيض المزرق',1,'صحيح! لون النجم يدل على درجة حرارة سطحه: الأحمر أقل حرارة، والأبيض المزرق أكثر سخونة.'],['الأحمر',0,'اللون الأحمر يدل على النجوم الأقل حرارة، كما يتوهج الملف الفلزي في المدفأة بالأحمر أولًا.'],['حرارتهما متساوية',0,'لون النجم يدل على حرارة سطحه، فاختلاف اللون يعني اختلاف الحرارة.']]];
+/* --- أدوات --- */
+function slider2(...a){return slider(...a).replace('id="pl"','id="pl2"').replace('aria-label="تشغيل الحركة">'+(S.play?'⏸':'▶'),'aria-label="تشغيل حركة الأرض">'+(S.play2?'⏸':'▶'));}
+function bindSlider(id,set,fmt,second){const e=$('#'+id);if(!e)return;const o=$('#'+id+'o');e.oninput=()=>{set(+e.value);o.textContent=fmt();S.user=1;};
+  const pb=$(second?'#pl2':'#pl');if(pb)pb.onclick=()=>{if(second)S.play2=!S.play2;else S.play=!S.play;pb.textContent=(second?S.play2:S.play)?'⏸':'▶';};}
+function syncSliders(){[['hr',S.hour,fmtH(S.hour)],['dy',S.day,dateOf(S.day)],['dy2',S.day,dateOf(S.day)],['mdy',S.md,'اليوم '+ar(Math.floor(S.md)+1)]].forEach(([id,v,f])=>{const e=$('#'+id);if(e&&document.activeElement!==e){e.value=v;$('#'+id+'o').textContent=f;}});}
+function render(){[r1,r2,r3,r4,rT,rS,rG,r5][S.st]();nav();}
+function open(i){C.user=0;S.st=i;S.play=S.play2=0;S.eps=EPS;
+  if(i===0){S.day=80;S.esc=1;}if(i===1){S.esc=2.6;S.day=S.t.sum?S.day:80;S.hour=12;}if(i===2){S.day=263;S.esc=1;S.md=S.t.pi?S.md:3;}if(i===3){S.day=263;S.esc=1;S.md=3;}if(i===4){S.esc=1;S.day=263;S.md=3;S.hour=9;}if(i===5){S.gx=null;S.pick=null;}if(i===6){S.cm=S.cm||'stars';}if(i===7){S.esc=1;S.day=263;}
+  place();preset();render();$('#cin').scrollTop=0;}
+
+/* ===== التخطيط والحلقة ===== */
+function layout(){W=innerWidth;H=innerHeight;R.setSize(W,H,false);TOP=($('.top').getBoundingClientRect().bottom||90)+8;
+  const card=$('.card');if(W>=900&&!card.classList.contains('moved')){CX0=(W-400)/2;AVH=H-TOP;CY0=TOP+AVH*.5;}else{const b=$('#cin').getBoundingClientRect().top;AVH=Math.max(160,b-TOP);CX0=W/2;CY0=TOP+AVH*.5;}
+  const lx=(W>=900?16:8)+'px',ty=(TOP+6)+'px';['#inset','#ins2'].forEach(q=>{const e=$(q);e.style.left=lx;e.style.top=ty;});cam.aspect=W/H;const k=AVH/H;cam.fov=42*Math.max(.6,Math.min(1.25,1/(k*1.25)));cam.setViewOffset(W,H,W/2-CX0,H/2-CY0,W,H);cam.updateProjectionMatrix();}
+addEventListener('resize',layout);
+const v3=new T.Vector3();let last=performance.now();
+function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;layout();
+  if(S.play){if(S.st===0||S.st===4)S.hour=(S.hour+dt*2.4)%24;else if(S.st===1)S.day=S.day%365+dt*24;else if(S.st===2||S.st===3||S.st===7)S.md=(S.md+dt*1.6)%29.5;}
+  if(S.play2&&S.st===3)S.day=S.day%365+dt*20;if(S.play2&&S.st===4)S.md=(S.md+dt*1.6)%29.5;
+  if((S.st===2||S.st===3||S.st===7)&&!S.play&&!reduce)S.hour=(S.hour+dt*.6)%24;
+  place();const k=reduce?1:.07;camUpdate(k);
+  if(S.st===0)tick1();else if(S.st===1)tick2();else if(S.st===3)tick4();else if(S.st===4)tickT();else if(S.st===5)tickS(dt);galaxy.rotation.y+=dt*.02;syncSliders();
+  // الإظهار
+  const sysOn=S.st<=4||S.st===7,sm=[2,3,4,7].includes(S.st);earthPivot.visible=sysOn;sun.visible=glow.visible=S.st!==6;solar.visible=S.st===5;cosmos.visible=S.st===6;starRow.visible=S.cm==='stars';galaxy.visible=S.cm==='galaxy';universe.visible=S.cm==='universe';water.visible=pin2.visible=S.st===4;moon.visible=sm;moonOrbit.visible=sm;eclPlane.visible=S.st===3;earthOrbit.visible=S.st===1;pin.visible=S.st<=1;axis.visible=S.st<=1;eqLine.visible=S.st===0;
+  rays.visible=S.st===1;if(S.st===1){const sd=sunDir(),E=earthPivot.position;rays.children.forEach((m,i)=>{const off=(i-2)*ER*S.esc*.35,side=new T.Vector3().crossVectors(sd,UP).normalize().multiplyScalar(off),a=E.clone().add(sd.clone().multiplyScalar(ER*S.esc*6)).add(side),b=E.clone().add(sd.clone().multiplyScalar(ER*S.esc*1.05)).add(side);
+    m.position.copy(a).add(b).multiplyScalar(.5);m.scale.set(S.esc,a.distanceTo(b),S.esc);m.quaternion.setFromUnitVectors(UP,b.clone().sub(a).normalize());});}
+  // احمرار القمر في الخسوف
+  const e=(S.st===2||S.st===3)?eclipse():'';let red=0;if(e==='lunar'||e==='plunar'){const E=earthPivot.position,rel=moon.position.clone().sub(E),sd=sunDir(),perp=rel.clone().sub(sd.clone().multiplyScalar(rel.dot(sd))).length(),sh=ER*(ORB+MOR)/ORB;red=Math.max(0,Math.min(1,(sh+MR-perp)/(2*MR)));}
+  moon.material.emissive.setRGB(.42*red,.09*red,.03*red);
+  clouds.rotation.y+=dt*.01;
+  // الملصقات
+  L.sun.on=S.st===1||S.st===3||S.st===5;L.earth.on=S.st>=1&&S.st!==5&&S.st!==6;L.moon.on=[2,3,4,7].includes(S.st);PL.forEach(p=>p.lb.on=S.st===5);L2.belt.on=S.st===5;LBL.forEach(l=>{if(l.grp)l.on=S.st===6&&l.grp===S.cm;});L.riy.on=S.st===0;L.np.on=S.st===0;L.ax.on=S.st===0;['jun','dec','mar','sep'].forEach(q=>L[q].on=S.st===1);
+  R.setViewport(0,0,W,H);R.setScissorTest(false);R.render(scene,cam);
+  for(const l of LBL){if(!l.on){l.e.style.display='none';continue;}v3.copy(l.get()).project(cam);if(v3.z>1||Math.abs(v3.x)>1.1||Math.abs(v3.y)>1.1){l.e.style.display='none';continue;}
+    l.e.style.display='';l.e.style.transform=`translate(${(v3.x*.5+.5)*W}px,${(-v3.y*.5+.5)*H}px) translate(-50%,-50%)`;}
+  // نافذة «من الأرض»
+  const ins=$('#inset');const inOn=S.st===2||S.st===3;ins.hidden=!inOn;
+  if(inOn){const r=ins.getBoundingClientRect(),E=earthPivot.position;let tgt,fov;const sol=e==='solar'||e==='psolar';
+    if(sol&&S.st===3){tgt=sun.position;const dir=tgt.clone().sub(E).normalize();icam.position.copy(E).add(dir.multiplyScalar(ER*1.02));fov=2*Math.atan(SUNR*2.2/icam.position.distanceTo(tgt))/D2R;$('#inT').textContent=W<600?'من الأرض':'الشمس كما تُرى من الأرض';}
+    else{tgt=moon.position;const dir=tgt.clone().sub(E).normalize();icam.position.copy(E).add(dir.multiplyScalar(ER*1.02));fov=2*Math.atan(MR*1.45/icam.position.distanceTo(tgt))/D2R;$('#inT').textContent=W<600?'من الأرض':'القمر كما يُرى من الأرض';}
+    icam.fov=fov;icam.aspect=r.width/r.height;icam.up.copy(UP);icam.lookAt(tgt);icam.updateProjectionMatrix();const y=H-r.bottom;
+    clouds.visible=false;R.setScissorTest(true);R.setScissor(r.left,y,r.width,r.height);R.setViewport(r.left,y,r.width,r.height);R.render(scene,icam);R.setScissorTest(false);clouds.visible=true;
+    $('#inP').textContent=S.st===3&&e?{lunar:'خسوف كلي',plunar:'خسوف جزئي',solar:'كسوف',psolar:'كسوف جزئي'}[e]:phase();}
+  drawSun();requestAnimationFrame(frame);}
+/* سحب البطاقة */
+(()=>{const g=$('#grip'),card=$('.card');let d=null;
+  g.addEventListener('pointerdown',e=>{g.setPointerCapture(e.pointerId);const r=card.getBoundingClientRect();d={dx:e.clientX-r.left,dy:e.clientY-r.top,w:r.width};});
+  g.addEventListener('pointermove',e=>{if(!d)return;if(!card.classList.contains('moved')){card.classList.add('moved');card.style.width=d.w+'px';card.style.insetInline='auto';card.style.right='auto';card.style.bottom='auto';}
+    const r=card.getBoundingClientRect();card.style.left=Math.max(4,Math.min(innerWidth-r.width-4,e.clientX-d.dx))+'px';card.style.top=Math.max(4,Math.min(innerHeight-60,e.clientY-d.dy))+'px';});
+  const end=()=>{d=null;};g.addEventListener('pointerup',end);g.addEventListener('pointercancel',end);
+  g.addEventListener('dblclick',()=>{card.classList.remove('moved');['width','insetInline','right','bottom','left','top'].forEach(k=>card.style[k]='');});})();
+layout();open(0);C.az=C.goal.az;C.el=C.goal.el;C.dist=C.goal.dist;C.tgt.copy(earthPivot.position);requestAnimationFrame(frame);
+if(location.search.includes('test'))window.__s={S,open,render,eclipse,phase,riyHour,noonAlt,place,pick:i=>pickPlanet(i)};
+})();
+
+</script>
